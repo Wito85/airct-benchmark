@@ -20,7 +20,7 @@ Preregistration on OSF in preparation (September 2026). The retrieval pipeline f
 
 - OSF project: to be added
 - OSF registration: to be added
-- Zenodo archive: to be added
+- Zenodo archive: DOI 10.5281/zenodo.22299272 (reserved; first version at release v1.0)
 
 ## Team
 
