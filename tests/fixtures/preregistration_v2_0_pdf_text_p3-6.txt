@@ -1,0 +1,298 @@
+translation can be stored as an audit field for every query. PMID lists (family L of Q12) use esearch with retmax and retst
+art, or usehistory=y with retrieval from the history server when a list exceeds 10,000 identifiers. Record XML is obtained
+from efetch.fcgi with db=pubmed, retmode=xml, in batches of 200 PMIDs, as GET or POST depending on identifier list length.
+The pipeline, the frozen files, all raw JSON and XML responses and the validation data are deposited in a public GitHub
+repository (release tagged before the freeze run), on OSF on the day of the freeze run, and archived on Zenodo
+(repository https://github.com/Wito85/airct-benchmark; Zenodo DOI 10.5281/zenodo.22299272, reserved on 4
+September 2026; the first version is published at release v1.0 before the freeze run and the submission version as a
+further version of the same record). Any reader can re-run every query; live counts will differ from the frozen values
+because PubMed is continuously updated.
+Q8. Date(s) data were accessed. - 23 August 2026: anchor pull on the unrestricted record base by W. Polanski and
+Prem; cells and counts are disclosed verbatim in Q18. - 3 September 2026: one structure check of publication-type
+behaviour (Q18). - 4 September 2026: pre-registration query-syntax checks, restricted by rule to publication year 2015
+and to the expressions that are new relative to the draft of 3 September 2026 (Q18 lists the checked expressions; the
+complete log is deposited on OSF). No 2024 count and no Stroke count was viewed; the only AI counts viewed were the
+2015 counts of the three new AI denominator definitions (vocabulary-stable, text-word, Robotics-excluded) and of four
+subfield descriptors. - Monday 12 October 2026 (fixed): definitive retrieval (freeze run, Run A followed by Run B in the
+same session), strictly after the OSF registration timestamp; the exact UTC start and end are written into the file
+headers and the OSF log. Independent reproduction by Hachem and Buszello takes place on the same UTC calendar
+day (Other).
+All statistical analyses use Run A of the freeze run. Neither the anchor pull nor the syntax checks enter any analysis.
+Q9. Data collection. Collection is fully automated by a single Python package whose configuration file holds the query
+catalogue of Q12 verbatim. For every cell (field, metric, publication year) one esearch request is issued with the year
+restricted through [pdat]. A token-bucket rate limiter caps requests at 10 per second. HTTP 429 and 5xx responses are
+retried with exponential backoff (1, 2, 4, 8, 16, 32 seconds; at most six attempts) and full logging. The raw JSON or
+XML of every response is saved with a UTC timestamp. For every count query the following audit fields are stored: full
+query string, PubMed querytranslation as returned, count, UTC timestamp, HTTP status, attempt number, and run label.
+A smoke-test mode runs one cell. The freeze mode runs the complete catalogue twice in the same session (Run A, then
+Run B; decision D18) and writes counts_frozen_YYYYMMDD_runA.csv and counts_frozen_YYYYMMDD_runB.csv with commented
+headers (retrieval start and end in UTC, git commit hash, pipeline version, E-utilities base URL). Run A is the analysis
+dataset; Run B serves only the within-day volatility diagnostic (E11). A SHA-256 manifest covers all files. The repository
+contains a README with exact run instructions and no API key. Because the source is a bibliographic index rather than
+a sample of participants, representativeness concerns are about indexing behaviour; the principal known artefacts (the
+2022 transition of NLM to automated indexing, indexing lag, vocabulary evolution) are handled by design (Q14, Q24).
+The freeze run takes place strictly after the OSF registration timestamp; before registration, query checks are limited
+by rule to publication year 2015 and to new expressions (Q8, Q18).
+Q10. Data codebook. Controlling documentation: (a) the NCBI E-utilities documentation (NCBI Bookshelf NBK25499
+for parameters, NBK25500 for the quick start); (b) the NLM MeSH Browser, Descriptor Data 2026, for every descriptor
+used, including tree positions and introduction years (facts fixed on 4 September 2026 and stated in Q12 and Q13); (c)
+the PubMed publication-type definitions. A study-specific data dictionary defining every column of the frozen files (run
+label, query family, field key, publication year, metric, query string, query translation, count, UTC timestamp, HTTP
+status, attempt) and every column of the validation dataset (V1 to V6 per rater, adjudicated value) is deposited with the
+data. The verbatim query catalogue in Q12 and the validation codebook in Q12 and Q24 are self-contained.
+SECTION 3: VARIABLES
+Q11. Manipulated variables. Not applicable. This is an observational bibliometric study. Field and publication year
+are naturally occurring grouping variables, not manipulations.
+Q12. Measured variables.
+12.1 Fixed request parameters. esearch with db=pubmed, retmode=json, retmax=0, tool=airct_benchmark, email=witold.polanski@ukd
+d.de, api_key from NCBI_API_KEY. Year clause appended to every count query: AND ("YYYY"[pdat]), YYYY from 2015 to 2024
+(COVID-19: 2020 to 2024). efetch with db=pubmed, retmode=xml, batches of 200 PMIDs.
+12.2 Composition rule. Every query is the character-level concatenation of the components shown in the templates of
+12.6, joined by AND or NOT exactly as shown, with the year clause always last. PubMed evaluates Boolean operators from
+left to right; parentheses are used exactly where the templates show them and nowhere else. The pipeline
+configuration holds the templates verbatim, and the code review before the freeze run (Other, timeline) confirms string
+identity between configuration and this registration. Field expressions, the RCT numerator and the review and primaryarticle expressions are character-identical to the draft of 3 September 2026 (decision M9); "Humans"[Mesh] and the year
+are appended as separate clauses.
+12.3 Field expressions.
+Key Role MeSH expression (exploded,
+verbatim)
+Text-word expression for E2
+and E7 (verbatim)
+AI exposure field "Artificial Intelligence"[Mesh
+]
+("artificial intelligence"[tia
+b] OR "machine learning"[tiab]OR "deep learning"[tiab] OR "n
+eural network"[tiab] OR "neura
+l networks"[tiab])
+STROKE primary comparator "Stroke"[Mesh] "stroke"[tiab]
+DM secondary disease comparator "Diabetes Mellitus"[Mesh] ("diabetes"[tiab] OR "diabetes
+mellitus"[tiab])
+MI secondary disease comparator,
+narrow cardiovascular
+sensitivity
+"Myocardial Infarction"[Mesh] ("myocardial infarction"[tiab]
+OR "heart attack"[tiab])
+CVD breadth supplement only, not
+interpreted as like-for-like
+"Cardiovascular Diseases"[Mesh
+]
+"cardiovascular disease"[tiab]
+COVID young-field control, diseasebased, 2020 to 2024"COVID-19"[Mesh] ("COVID-19"[tiab] OR "SARS-CoV
+-2"[tiab])
+MOBAPP young-field control, technologybased, 2015 to 2024 (descriptor
+introduced 2014)
+"Mobile Applications"[Mesh] none
+CDSS technology comparator,
+function-matched
+"Decision Support Systems, Cli
+nical"[Mesh]
+none
+DXIMG technology comparator, taskmatched"Diagnostic Imaging"[Mesh] none
+TELE exploratory technology
+comparator
+"Telemedicine"[Mesh] none
+The text-word expression for AI extends the three-term draft string by "neural network"[tiab] OR "neural networks"[tiab]
+(Study Concept v1.1), because these terms carried a large part of the AI literature before the Machine Learning
+descriptor existed and keep the coverage of the definition more stable across the study window. It is stated in advance
+that the two terms also match records on biological neural networks, so the text-word denominator over-includes nonAI records. For this reason E2 serves the replication of the trend under the agreement rule (decision D19), E1b is read
+for step changes rather than for its level, and neither is used as a level estimate of the AI RCT share. Text-word
+definitions are always combined with medline[sb] so that numerator and denominator share one indexed base (decision
+D20).
+Comparator justification (decision D7). Stroke was fixed a priori as the primary comparator before any technology
+comparator was considered, because it is a mature clinical field with an active randomized-trial culture in acute
+therapy, secondary prevention and rehabilitation, and lies within the author team’s domain expertise. Diabetes Mellitus
+is a chronic disease with large pharmacological and behavioural trial output. Myocardial Infarction is an acute
+cardiovascular field with an established trial culture and narrower than Cardiovascular Diseases, which is a
+heterogeneous umbrella term reported for completeness only. COVID-19 is a disease field created in 2020 that
+generated randomized evidence quickly; the limits of the analogy (pandemic funding, therapeutic urgency) are stated
+in the manuscript. Mobile Applications is a digital, largely interventional technology field whose descriptor was
+introduced shortly before the study window, so that its entire growth phase is observable and field age is controlled
+without the pandemic confounder. Decision Support Systems, Clinical is the pre-AI generation of computerized decision
+support with an established RCT tradition; Diagnostic Imaging tests whether a diagnostic orientation alone explains a
+low RCT share; Telemedicine is a digital-health delivery field with an established RCT tradition.
+12.4 Auxiliary expressions.
+H_HUM = "Humans"[Mesh]
+YEAR = ("YYYY"[pdat])
+N_RCT = "Randomized Controlled Trial"[pt]
+N_CT = "Clinical Trial"[pt]
+N_PROT = "Clinical Trial Protocol"[pt]
+N_REV = (Review[pt] OR "Systematic Review"[pt] OR Meta-Analysis[pt])
+N_PRIM = "Journal Article"[pt] NOT (Review[pt] OR "Systematic Review"[pt] OR Meta-Analysis[pt] OR Editorial[pt] OR Comm
+ent[pt] OR Letter[pt])
+T_RCT = (randomized[tiab] OR randomised[tiab] OR randomly[tiab] OR placebo[tiab] OR trial[ti])
+X_NONRESEARCH = (Review[pt] OR Editorial[pt] OR Letter[pt] OR Comment[pt] OR News[pt])
+MEDLINE = medline[sb]
+F_AI_VOCAB2015 = ("Artificial Intelligence"[Mesh:NoExp] OR "Expert Systems"[Mesh:NoExp] OR "Fuzzy Logic"[Mesh:NoExp] OR "Knowle
+dge Bases"[Mesh:NoExp] OR "Natural Language Processing"[Mesh:NoExp] OR "Neural Networks, Computer"[Mesh:NoExp] OR "Robotics"[Me
+sh:NoExp])
+F_AI_TIAB = ("artificial intelligence"[tiab] OR "machine learning"[tiab] OR "deep learning"[tiab] OR "neural network"[tiab
+] OR "neural networks"[tiab]) AND medline[sb]
+F_AI_NOROB = ("Artificial Intelligence"[Mesh] NOT "Robotics"[Mesh])
+SUB_ML = "Machine Learning"[Mesh]
+SUB_DL = "Deep Learning"[Mesh]
+SUB_NLP = "Natural Language Processing"[Mesh]
+SUB_NN = "Neural Networks, Computer"[Mesh]
+F_AI_VOCAB2015 contains every descriptor of the Artificial Intelligence subtree that existed in MeSH 2015, each
+without explosion, so that descriptors introduced later (for example Machine Learning, 2016; Computer Heuristics,
+2016) cannot inflate the AI denominator over time (E1). Residual assumption: the tree position of these descriptors has
+not changed since 2015. F_AI_NOROB removes the Robotics subtree, which is a child of Artificial Intelligence in the MeSH tree (L01.224.050.375.630) and brings rehabilitation and autonomous robotics records into the exploded AI set,
+whereas “Robotic Surgical Procedures” lies in other trees (E04, J01) and is not affected (E13, decision M10).12.5 Reference panels (positioning only, decision D16).
+Disease-category panel (21 members). Rule: all top-level headings of the MeSH Diseases tree C01 to C26 in the 2026
+edition, each as "..."[Mesh] (exploded), plus "Mental Disorders"[Mesh] from the F tree; excluded by rule: Disorders of
+Environmental Origin, Animal Diseases, and Pathological Conditions, Signs and Symptoms (C21 to C23). Fixed list: "Inf
+ections"[Mesh]; "Neoplasms"[Mesh]; "Musculoskeletal Diseases"[Mesh]; "Digestive System Diseases"[Mesh]; "Stomatognathic Diseases"[M
+esh]; "Respiratory Tract Diseases"[Mesh]; "Otorhinolaryngologic Diseases"[Mesh]; "Nervous System Diseases"[Mesh]; "Eye Diseases"[Me
+sh]; "Urogenital Diseases"[Mesh]; "Cardiovascular Diseases"[Mesh]; "Hemic and Lymphatic Diseases"[Mesh]; "Congenital, Hereditary, a
+nd Neonatal Diseases and Abnormalities"[Mesh]; "Skin and Connective Tissue Diseases"[Mesh]; "Nutritional and Metabolic Diseases"[M
+esh]; "Endocrine System Diseases"[Mesh]; "Immune System Diseases"[Mesh]; "Occupational Diseases"[Mesh]; "Chemically-Induced Disorde
+rs"[Mesh]; "Wounds and Injuries"[Mesh]; "Mental Disorders"[Mesh].
+Technology panel (9 members), predefined list: "Diagnostic Imaging"[Mesh]; "Telemedicine"[Mesh]; "Decision Support Systems, Cl
+inical"[Mesh]; "Biomarkers"[Mesh]; "Robotic Surgical Procedures"[Mesh]; "Electronic Health Records"[Mesh]; "Mobile Applications"[Me
+sh]; "Wearable Electronic Devices"[Mesh]; "Point-of-Care Testing"[Mesh].
+CLIN_ANY is the disjunction of all 21 disease-panel headings in the order listed, ("Infections"[Mesh] OR "Neoplasms"[Mesh] OR .
+.. OR "Mental Disorders"[Mesh]), written out in full in the pipeline configuration. Panel headings are exploded with the MeSH tree current at retrieval. Biomarkers enters only as a panel member; there is no named Biomarkers contrast
+(decision D1).
+12.6 Query families. {F} denotes a MeSH field expression of 12.3, {F_TIAB} its text-word expression, (...) the year clause
+("YYYY"[pdat]). Every template is combined with every year of the field’s window.
+Family Use Template Fields
+A denominators {F} AND "Humans"[Mesh] AND (..
+.)
+ten named fields
+B RCT numerators {F} AND "Humans"[Mesh] AND "Ra
+ndomized Controlled Trial"[pt]
+AND (...)
+ten named fields
+C Clinical Trial numerators (S4) {F} AND "Humans"[Mesh] AND "Cl
+inical Trial"[pt] AND (...)
+ten named fields
+D overlap with AI (E3) {F} AND "Artificial Intelligen
+ce"[Mesh] AND "Humans"[Mesh] A
+ND (...)
+nine comparators
+E disjoint sets (E3) ({F} NOT "Artificial Intellige
+nce"[Mesh]) AND "Humans"[Mesh]
+AND (...); the same with AND "R
+andomized Controlled Trial"[pt
+] inserted before the year
+clause; the same with AND "Clini
+cal Trial"[pt]
+nine comparators
+F vocabulary-stable AI (E1) {F_AI_VOCAB2015} AND "Humans"[
+Mesh] AND (...); the same with
+AND "Randomized Controlled Tri
+al"[pt]
+AI
+G text-word definitions (E2) {F_TIAB} AND medline[sb] AND "
+Humans"[Mesh] AND (...); the
+same with AND "Randomized Cont
+rolled Trial"[pt]
+AI, STROKE, DM, MI, CVD,
+COVID
+H subfields (E4) {SUB} AND "Humans"[Mesh] AND (
+...); the same with AND "Random
+ized Controlled Trial"[pt]
+SUB_ML, SUB_DL, SUB_NLP,
+SUB_NN
+I indexing completeness (E7) {F_TIAB} AND (...) and {F_TIAB}
+AND medline[sb] AND (...); no
+Humans clause by design
+AI, STROKE
+J protocol-excluded numerators
+(E6)
+{F} AND "Humans"[Mesh] AND "Ra
+ndomized Controlled Trial"[pt]
+NOT "Clinical Trial Protocol"[
+pt] AND (...)
+ten named fields
+K original-research base (E5) {F} AND "Humans"[Mesh] NOT (Re
+view[pt] OR Editorial[pt] OR L
+etter[pt] OR Comment[pt] OR Ne
+ws[pt]) AND (...); the same
+with AND "Randomized Controlled
+Trial"[pt] inserted before the
+year clause
+ten named fields
+L PMID lists (S5, S7, S8, R-check) the family B strings for AI and
+STROKE and the family R strings
+(S_f, R_f); esearch with retmax
+and retstart, or usehistory=y
+AI, STROKE, 2024and retstart, or usehistory=y
+with retrieval from the history
+server when a list exceeds
+10,000
+M disease panel (S9, E12) {HEADING} AND "Humans"[Mesh] A
+ND (...); the same with AND "Ra
+ndomized Controlled Trial"[pt]
+21 headings
+N technology panel (S9) {DESCRIPTOR} AND "Humans"[Mesh
+] AND (...); the same with AND
+"Randomized Controlled Trial"[
+pt]
+9 descriptors
+O efetch XML (S5, S7, S8) efetch of every PMID in the
+family B lists for AI and STROKE
+and of the sampled PMIDs of S_f
+and R_f
+AI, STROKE, 2024
+Q unrestricted record base (E10) {F} AND (...); {F} AND "Randomi
+zed Controlled Trial"[pt] AND
+(...)
+AI, STROKE
+R strata (S7) S_f: {F} AND "Humans"[Mesh] AND
+medline[sb] AND (randomized[ti
+ab] OR randomised[tiab] OR ran
+domly[tiab] OR placebo[tiab] O
+R trial[ti]) NOT "Randomized C
+ontrolled Trial"[pt] AND (...);
+R_f: {F} AND "Humans"[Mesh] AND
+medline[sb] NOT "Randomized Co
+ntrolled Trial"[pt] NOT (rando
+mized[tiab] OR randomised[tiab
+] OR randomly[tiab] OR placebo
+[tiab] OR trial[ti]) AND (...)
+AI, STROKE, 2024
+U disease-related AI subset (E12) "Artificial Intelligence"[Mesh
+] AND "Humans"[Mesh] AND {CLIN
+_ANY} AND (...); the same with
+AND "Randomized Controlled Tri
+al"[pt]
+AI
+W Robotics-excluded AI (E13) ("Artificial Intelligence"[Mes
+h] NOT "Robotics"[Mesh]) AND "
+Humans"[Mesh] AND (...); the
+same with AND "Randomized Cont
+rolled Trial"[pt]
+AI
+Y review and primary-article
+counts (E14)
+{F} AND "Humans"[Mesh] AND (Re
+view[pt] OR "Systematic Review
+"[pt] OR Meta-Analysis[pt]) AN
+D (...); {F} AND "Humans"[Mesh]
+AND "Journal Article"[pt] NOT
+(Review[pt] OR "Systematic Rev
+iew"[pt] OR Meta-Analysis[pt]
+OR Editorial[pt] OR Comment[pt
+] OR Letter[pt]) AND (...)
+ten named fields
+Family letters P, S, T, V and X are not used, to avoid confusion with endpoint labels, stratum names, validation cells
+and X_NONRESEARCH. Approximate volume: about 2,200 count requests plus efetch batches, completed within about
+an hour at 10 requests per second.
+Worked verbatim examples (AI, 2024): - Family A: "Artificial Intelligence"[Mesh] AND "Humans"[Mesh] AND ("2024"[pdat]) -
+Family B: "Artificial Intelligence"[Mesh] AND "Humans"[Mesh] AND "Randomized Controlled Trial"[pt] AND ("2024"[pdat]) - Family
+G: ("artificial intelligence"[tiab] OR "machine learning"[tiab] OR "deep learning"[tiab] OR "neural network"[tiab] OR "neural net
+works"[tiab]) AND medline[sb] AND "Humans"[Mesh] AND ("2024"[pdat]) - Family Q (identical to the worked example of the draft):
+"Artificial Intelligence"[Mesh] AND "Randomized Controlled Trial"[pt] AND ("2024"[pdat]) - Family R, S_AI: "Artificial Intelligen
+ce"[Mesh] AND "Humans"[Mesh] AND medline[sb] AND (randomized[tiab] OR randomised[tiab] OR randomly[tiab] OR placebo[tiab] OR tria
+l[ti]) NOT "Randomized Controlled Trial"[pt] AND ("2024"[pdat]) - Family W: ("Artificial Intelligence"[Mesh] NOT "Robotics"[Mesh
+]) AND "Humans"[Mesh] AND ("2024"[pdat])
+12.7 Validation variables (codebook; definitions and examples finalized in the pilot, Q24). Coded per record from title,
+abstract, journal, year and PMID, with full text consulted when title and abstract do not allow coding: - V1 Report type:
+primary report of an RCT (main results) / secondary analysis of an RCT (post hoc, subgroup, long-term follow-up,
+economic or process evaluation, pooled analysis) / protocol or design paper / not an RCT (non-randomized,
+observational, review, commentary, other) / unclear. - V2 Randomization unit (if V1 is primary or secondary): individual
+/ cluster / crossover or within-subject / other. - V3 Role of AI (AI cells only): AI system is the intervention or an integral
+component of the intervention under randomized comparison / a robotic or automated system without a learning or
+inference component is the intervention (record enters the AI set through the Robotics subtree; decision M10) / AI used
+as an analytic tool on trial data / AI mentioned peripherally or used as an outcome or measurement instrument / no AI
+content (indexing error) / unclear. - V4 Setting (if V3 is AI intervention): real clinical care with patient-level or clinicianlevel outcomes / simulated or reader-study setting / other. - V5 Field relevance (Stroke cells only): stroke is the target

@@ -1,0 +1,11 @@
+# Conda environment of the AI-RCT Benchmark pipeline.
+#   conda env create -f environment.yml
+#   conda activate airct-benchmark
+name: airct-benchmark
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - -r requirements.txt

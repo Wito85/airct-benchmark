@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "airct_benchmark"
+description = "PubMed E-utilities pipeline of the AI-RCT Benchmark study (OSF registration https://osf.io/qkb9g/)"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dynamic = ["version"]
+dependencies = ["requests>=2.31,<3", "pyyaml>=6.0,<7"]
+
+[project.optional-dependencies]
+test = ["pytest>=7.4"]
+
+[project.scripts]
+airct-benchmark = "airct_benchmark.run:main"
+
+[project.urls]
+Repository = "https://github.com/Wito85/airct-benchmark"
+Registration = "https://osf.io/qkb9g/"
+
+[tool.setuptools]
+packages = ["airct_benchmark"]
+
+[tool.setuptools.dynamic]
+version = { attr = "airct_benchmark.__version__" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

@@ -1,0 +1,373 @@
+# airct_benchmark query catalogue
+#
+# Source of every string below: Preregistration v2.0 FINAL (4 September 2026),
+# OSF registration https://osf.io/qkb9g/ , DOI 10.17605/OSF.IO/QKB9G, items
+# Q7, Q9, Q12 (12.1 to 12.6, 12.8, 12.10) and Q13. All MeSH, text-word,
+# publication-type and auxiliary expressions are copied character for character
+# from Q12 and must never be edited here without a labelled protocol deviation.
+# The code review before the freeze run (Step 3) confirms string identity
+# between this file and the registration with
+#     python -m airct_benchmark.run check-catalogue --prereg <Preregistration_v2.0_FINAL_2026-09-04.md>
+#
+# Every string is written as a single-quoted YAML scalar so that the double
+# quotes and square brackets of PubMed syntax are preserved literally.
+# Placeholders used only inside templates: {F} {F_TIAB} {SUB} {HEADING}
+# {DESCRIPTOR} {F_AI_VOCAB2015} {CLIN_ANY} {YEAR}. The registration writes the
+# year clause placeholder as (...); the pipeline writes it as {YEAR}. Both
+# stand for ("YYYY"[pdat]).
+
+schema_version: 1
+
+registration:
+  title: 'Randomized trial share of medical artificial intelligence literature benchmarked against established clinical fields'
+  document: 'Preregistration_v2.0_FINAL_2026-09-04.md'
+  osf_registration: 'https://osf.io/qkb9g/'
+  osf_doi: '10.17605/OSF.IO/QKB9G'
+  registered_on: '2026-09-04'
+  repository: 'https://github.com/Wito85/airct-benchmark'
+  zenodo_doi: '10.5281/zenodo.22299272'
+
+# 12.1 and Q7: fixed request parameters
+eutils:
+  base_url: 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
+  db: 'pubmed'
+  tool: 'airct_benchmark'
+  email: 'witold.polanski@ukdd.de'
+  api_key_env: 'NCBI_API_KEY'            # read from the environment only; never stored, logged or committed
+  requests_per_second_with_key: 10
+  requests_per_second_without_key: 3
+  backoff_seconds: [1, 2, 4, 8, 16, 32]  # Q9: exponential backoff for HTTP 429 and 5xx
+  max_attempts: 6                        # Q9: at most six attempts
+  timeout_seconds: 60
+  efetch_batch_size: 200                 # Q7 and 12.1: batches of 200 PMIDs
+  esearch_page_size: 10000               # retmax for PMID lists of at most 10,000 identifiers
+  history_threshold: 10000               # Q7: usehistory=y and the history server above this size
+  max_get_url_length: 1500               # efetch as GET when the URL is shorter, POST otherwise (Q7: GET or POST by list length)
+
+# Q8, Q9, Other (timing and freeze rule)
+freeze:
+  date: '2026-10-12'                     # Monday 12 October 2026: Run A followed by Run B in one session
+  runs: ['A', 'B']
+  csv_name_template: 'counts_frozen_{date}_run{run}.csv'
+  # Before the freeze date no query other than the smoke-test cell may be sent to PubMed.
+
+# Q9 smoke-test mode: one cell. Reference value from Q18 (syntax check of 4 September 2026,
+# publication year 2015, human-subject base): DM denominator (family A) 18,723.
+# A live count may deviate (PubMed is updated continuously); deviations are logged, not treated as failures.
+smoke_test:
+  field: 'DM'
+  family: 'A'
+  metric: 'den'
+  year: 2015
+  reference_count: 18723
+  reference_source: 'Q18: pre-registration syntax check, 4 September 2026, 07:26 UTC'
+  # Further Q18 values for Diabetes Mellitus 2015, usable with --family/--metric in smoke mode
+  # (all are disclosed in the registration; only DM 2015 cells may be queried before the freeze run):
+  other_reference_counts:
+    B/rct: 1405
+    J/rct_noprot: 1405
+    E/den: 18647
+    K/den: 13614
+    G/den: 24838
+    R/S: 941
+    R/R: 16377
+
+# Q13: study window
+years:
+  default: {start: 2015, end: 2024}
+  COVID: {start: 2020, end: 2024}
+  primary_year: 2024
+
+# 12.4 YEAR: ("YYYY"[pdat]); the pipeline replaces YYYY with the four-digit year
+year_clause_template: '("YYYY"[pdat])'
+
+# 12.3 Field expressions (MeSH exploded, verbatim; text-word expressions for E2 and E7, verbatim)
+fields:
+  AI:
+    role: 'exposure field'
+    mesh: '"Artificial Intelligence"[Mesh]'
+    tiab: '("artificial intelligence"[tiab] OR "machine learning"[tiab] OR "deep learning"[tiab] OR "neural network"[tiab] OR "neural networks"[tiab])'
+  STROKE:
+    role: 'primary comparator'
+    mesh: '"Stroke"[Mesh]'
+    tiab: '"stroke"[tiab]'
+  DM:
+    role: 'secondary disease comparator'
+    mesh: '"Diabetes Mellitus"[Mesh]'
+    tiab: '("diabetes"[tiab] OR "diabetes mellitus"[tiab])'
+  MI:
+    role: 'secondary disease comparator, narrow cardiovascular sensitivity'
+    mesh: '"Myocardial Infarction"[Mesh]'
+    tiab: '("myocardial infarction"[tiab] OR "heart attack"[tiab])'
+  CVD:
+    role: 'breadth supplement only, not interpreted as like-for-like'
+    mesh: '"Cardiovascular Diseases"[Mesh]'
+    tiab: '"cardiovascular disease"[tiab]'
+  COVID:
+    role: 'young-field control, disease-based, 2020 to 2024'
+    mesh: '"COVID-19"[Mesh]'
+    tiab: '("COVID-19"[tiab] OR "SARS-CoV-2"[tiab])'
+  MOBAPP:
+    role: 'young-field control, technology-based, 2015 to 2024 (descriptor introduced 2014)'
+    mesh: '"Mobile Applications"[Mesh]'
+    tiab: null
+  CDSS:
+    role: 'technology comparator, function-matched'
+    mesh: '"Decision Support Systems, Clinical"[Mesh]'
+    tiab: null
+  DXIMG:
+    role: 'technology comparator, task-matched'
+    mesh: '"Diagnostic Imaging"[Mesh]'
+    tiab: null
+  TELE:
+    role: 'exploratory technology comparator'
+    mesh: '"Telemedicine"[Mesh]'
+    tiab: null
+
+# Field groups used by the family definitions
+field_groups:
+  named_fields: [AI, STROKE, DM, MI, CVD, COVID, MOBAPP, CDSS, DXIMG, TELE]   # "ten named fields"
+  comparators: [STROKE, DM, MI, CVD, COVID, MOBAPP, CDSS, DXIMG, TELE]        # "nine comparators"
+  tiab_fields: [AI, STROKE, DM, MI, CVD, COVID]                               # family G
+  completeness_fields: [AI, STROKE]                                           # family I
+  ai_stroke: [AI, STROKE]                                                     # families L, O, Q, R
+
+# 12.4 Auxiliary expressions (verbatim)
+auxiliary:
+  H_HUM: '"Humans"[Mesh]'
+  YEAR: '("YYYY"[pdat])'
+  N_RCT: '"Randomized Controlled Trial"[pt]'
+  N_CT: '"Clinical Trial"[pt]'
+  N_PROT: '"Clinical Trial Protocol"[pt]'
+  N_REV: '(Review[pt] OR "Systematic Review"[pt] OR Meta-Analysis[pt])'
+  N_PRIM: '"Journal Article"[pt] NOT (Review[pt] OR "Systematic Review"[pt] OR Meta-Analysis[pt] OR Editorial[pt] OR Comment[pt] OR Letter[pt])'
+  T_RCT: '(randomized[tiab] OR randomised[tiab] OR randomly[tiab] OR placebo[tiab] OR trial[ti])'
+  X_NONRESEARCH: '(Review[pt] OR Editorial[pt] OR Letter[pt] OR Comment[pt] OR News[pt])'
+  MEDLINE: 'medline[sb]'
+  F_AI_VOCAB2015: '("Artificial Intelligence"[Mesh:NoExp] OR "Expert Systems"[Mesh:NoExp] OR "Fuzzy Logic"[Mesh:NoExp] OR "Knowledge Bases"[Mesh:NoExp] OR "Natural Language Processing"[Mesh:NoExp] OR "Neural Networks, Computer"[Mesh:NoExp] OR "Robotics"[Mesh:NoExp])'
+  F_AI_TIAB: '("artificial intelligence"[tiab] OR "machine learning"[tiab] OR "deep learning"[tiab] OR "neural network"[tiab] OR "neural networks"[tiab]) AND medline[sb]'
+  F_AI_NOROB: '("Artificial Intelligence"[Mesh] NOT "Robotics"[Mesh])'
+  SUB_ML: '"Machine Learning"[Mesh]'
+  SUB_DL: '"Deep Learning"[Mesh]'
+  SUB_NLP: '"Natural Language Processing"[Mesh]'
+  SUB_NN: '"Neural Networks, Computer"[Mesh]'
+
+# Q13 and E4: subfields are queried for the full window 2015 to 2024 and REPORTED from the
+# descriptor's introduction year onward (analysis rule, applied in Step 7, not in the pipeline).
+subfields:
+  SUB_ML:  {label: 'Machine Learning', report_from_year: 2016}
+  SUB_DL:  {label: 'Deep Learning', report_from_year: 2019}
+  SUB_NLP: {label: 'Natural Language Processing', report_from_year: 2015}
+  SUB_NN:  {label: 'Neural Networks, Computer', report_from_year: 2015}
+
+# 12.5 Reference panels (positioning only, decision D16), fixed lists in registered order.
+# in_trajectory: false marks descriptors introduced after 2015 (Q13 panel rule: 2024 rank only).
+panels:
+  disease:
+    - {key: DIS_INFECTIONS, label: 'Infections', mesh: '"Infections"[Mesh]', in_trajectory: true}
+    - {key: DIS_NEOPLASMS, label: 'Neoplasms', mesh: '"Neoplasms"[Mesh]', in_trajectory: true}
+    - {key: DIS_MUSCULOSKELETAL_DISEASES, label: 'Musculoskeletal Diseases', mesh: '"Musculoskeletal Diseases"[Mesh]', in_trajectory: true}
+    - {key: DIS_DIGESTIVE_SYSTEM_DISEASES, label: 'Digestive System Diseases', mesh: '"Digestive System Diseases"[Mesh]', in_trajectory: true}
+    - {key: DIS_STOMATOGNATHIC_DISEASES, label: 'Stomatognathic Diseases', mesh: '"Stomatognathic Diseases"[Mesh]', in_trajectory: true}
+    - {key: DIS_RESPIRATORY_TRACT_DISEASES, label: 'Respiratory Tract Diseases', mesh: '"Respiratory Tract Diseases"[Mesh]', in_trajectory: true}
+    - {key: DIS_OTORHINOLARYNGOLOGIC_DISEASES, label: 'Otorhinolaryngologic Diseases', mesh: '"Otorhinolaryngologic Diseases"[Mesh]', in_trajectory: true}
+    - {key: DIS_NERVOUS_SYSTEM_DISEASES, label: 'Nervous System Diseases', mesh: '"Nervous System Diseases"[Mesh]', in_trajectory: true}
+    - {key: DIS_EYE_DISEASES, label: 'Eye Diseases', mesh: '"Eye Diseases"[Mesh]', in_trajectory: true}
+    - {key: DIS_UROGENITAL_DISEASES, label: 'Urogenital Diseases', mesh: '"Urogenital Diseases"[Mesh]', in_trajectory: true}
+    - {key: DIS_CARDIOVASCULAR_DISEASES, label: 'Cardiovascular Diseases', mesh: '"Cardiovascular Diseases"[Mesh]', in_trajectory: true}
+    - {key: DIS_HEMIC_AND_LYMPHATIC_DISEASES, label: 'Hemic and Lymphatic Diseases', mesh: '"Hemic and Lymphatic Diseases"[Mesh]', in_trajectory: true}
+    - {key: DIS_CONGENITAL_HEREDITARY_NEONATAL, label: 'Congenital, Hereditary, and Neonatal Diseases and Abnormalities', mesh: '"Congenital, Hereditary, and Neonatal Diseases and Abnormalities"[Mesh]', in_trajectory: true}
+    - {key: DIS_SKIN_AND_CONNECTIVE_TISSUE_DISEASES, label: 'Skin and Connective Tissue Diseases', mesh: '"Skin and Connective Tissue Diseases"[Mesh]', in_trajectory: true}
+    - {key: DIS_NUTRITIONAL_AND_METABOLIC_DISEASES, label: 'Nutritional and Metabolic Diseases', mesh: '"Nutritional and Metabolic Diseases"[Mesh]', in_trajectory: true}
+    - {key: DIS_ENDOCRINE_SYSTEM_DISEASES, label: 'Endocrine System Diseases', mesh: '"Endocrine System Diseases"[Mesh]', in_trajectory: true}
+    - {key: DIS_IMMUNE_SYSTEM_DISEASES, label: 'Immune System Diseases', mesh: '"Immune System Diseases"[Mesh]', in_trajectory: true}
+    - {key: DIS_OCCUPATIONAL_DISEASES, label: 'Occupational Diseases', mesh: '"Occupational Diseases"[Mesh]', in_trajectory: true}
+    - {key: DIS_CHEMICALLY_INDUCED_DISORDERS, label: 'Chemically-Induced Disorders', mesh: '"Chemically-Induced Disorders"[Mesh]', in_trajectory: true}
+    - {key: DIS_WOUNDS_AND_INJURIES, label: 'Wounds and Injuries', mesh: '"Wounds and Injuries"[Mesh]', in_trajectory: true}
+    - {key: DIS_MENTAL_DISORDERS, label: 'Mental Disorders', mesh: '"Mental Disorders"[Mesh]', in_trajectory: true}
+  technology:
+    - {key: TECH_DIAGNOSTIC_IMAGING, label: 'Diagnostic Imaging', mesh: '"Diagnostic Imaging"[Mesh]', in_trajectory: true}
+    - {key: TECH_TELEMEDICINE, label: 'Telemedicine', mesh: '"Telemedicine"[Mesh]', in_trajectory: true}
+    - {key: TECH_DECISION_SUPPORT_SYSTEMS_CLINICAL, label: 'Decision Support Systems, Clinical', mesh: '"Decision Support Systems, Clinical"[Mesh]', in_trajectory: true}
+    - {key: TECH_BIOMARKERS, label: 'Biomarkers', mesh: '"Biomarkers"[Mesh]', in_trajectory: true}
+    - {key: TECH_ROBOTIC_SURGICAL_PROCEDURES, label: 'Robotic Surgical Procedures', mesh: '"Robotic Surgical Procedures"[Mesh]', in_trajectory: true}
+    - {key: TECH_ELECTRONIC_HEALTH_RECORDS, label: 'Electronic Health Records', mesh: '"Electronic Health Records"[Mesh]', in_trajectory: true}
+    - {key: TECH_MOBILE_APPLICATIONS, label: 'Mobile Applications', mesh: '"Mobile Applications"[Mesh]', in_trajectory: true}
+    - {key: TECH_WEARABLE_ELECTRONIC_DEVICES, label: 'Wearable Electronic Devices', mesh: '"Wearable Electronic Devices"[Mesh]', in_trajectory: false}
+    - {key: TECH_POINT_OF_CARE_TESTING, label: 'Point-of-Care Testing', mesh: '"Point-of-Care Testing"[Mesh]', in_trajectory: false}
+
+# 12.5 CLIN_ANY: disjunction of all 21 disease-panel headings in the order listed, written out in full
+clin_any: '("Infections"[Mesh] OR "Neoplasms"[Mesh] OR "Musculoskeletal Diseases"[Mesh] OR "Digestive System Diseases"[Mesh] OR "Stomatognathic Diseases"[Mesh] OR "Respiratory Tract Diseases"[Mesh] OR "Otorhinolaryngologic Diseases"[Mesh] OR "Nervous System Diseases"[Mesh] OR "Eye Diseases"[Mesh] OR "Urogenital Diseases"[Mesh] OR "Cardiovascular Diseases"[Mesh] OR "Hemic and Lymphatic Diseases"[Mesh] OR "Congenital, Hereditary, and Neonatal Diseases and Abnormalities"[Mesh] OR "Skin and Connective Tissue Diseases"[Mesh] OR "Nutritional and Metabolic Diseases"[Mesh] OR "Endocrine System Diseases"[Mesh] OR "Immune System Diseases"[Mesh] OR "Occupational Diseases"[Mesh] OR "Chemically-Induced Disorders"[Mesh] OR "Wounds and Injuries"[Mesh] OR "Mental Disorders"[Mesh])'
+
+# 12.6 Query families. Composition rule 12.2: character-level concatenation of the components,
+# joined by AND or NOT exactly as shown, the year clause always last, parentheses exactly where shown.
+# Each "the same with AND ..." variant of the registration is written out as its own metric template.
+# Family letters P, S, T, V and X are not used (registration).
+families:
+  A:
+    use: 'denominators'
+    fields: named_fields
+    metrics:
+      den: '{F} AND "Humans"[Mesh] AND {YEAR}'
+  B:
+    use: 'RCT numerators'
+    fields: named_fields
+    metrics:
+      rct: '{F} AND "Humans"[Mesh] AND "Randomized Controlled Trial"[pt] AND {YEAR}'
+  C:
+    use: 'Clinical Trial numerators (S4)'
+    fields: named_fields
+    metrics:
+      ct: '{F} AND "Humans"[Mesh] AND "Clinical Trial"[pt] AND {YEAR}'
+  D:
+    use: 'overlap with AI (E3)'
+    fields: comparators
+    metrics:
+      overlap: '{F} AND "Artificial Intelligence"[Mesh] AND "Humans"[Mesh] AND {YEAR}'
+  E:
+    use: 'disjoint sets (E3)'
+    fields: comparators
+    metrics:
+      den: '({F} NOT "Artificial Intelligence"[Mesh]) AND "Humans"[Mesh] AND {YEAR}'
+      rct: '({F} NOT "Artificial Intelligence"[Mesh]) AND "Humans"[Mesh] AND "Randomized Controlled Trial"[pt] AND {YEAR}'
+      ct: '({F} NOT "Artificial Intelligence"[Mesh]) AND "Humans"[Mesh] AND "Clinical Trial"[pt] AND {YEAR}'
+  F:
+    use: 'vocabulary-stable AI (E1)'
+    fields: [AI]
+    metrics:
+      den: '{F_AI_VOCAB2015} AND "Humans"[Mesh] AND {YEAR}'
+      rct: '{F_AI_VOCAB2015} AND "Humans"[Mesh] AND "Randomized Controlled Trial"[pt] AND {YEAR}'
+  G:
+    use: 'text-word definitions (E2)'
+    fields: tiab_fields
+    metrics:
+      den: '{F_TIAB} AND medline[sb] AND "Humans"[Mesh] AND {YEAR}'
+      rct: '{F_TIAB} AND medline[sb] AND "Humans"[Mesh] AND "Randomized Controlled Trial"[pt] AND {YEAR}'
+  H:
+    use: 'subfields (E4)'
+    fields: subfields
+    metrics:
+      den: '{SUB} AND "Humans"[Mesh] AND {YEAR}'
+      rct: '{SUB} AND "Humans"[Mesh] AND "Randomized Controlled Trial"[pt] AND {YEAR}'
+  I:
+    use: 'indexing completeness (E7); no Humans clause by design'
+    fields: completeness_fields
+    metrics:
+      all: '{F_TIAB} AND {YEAR}'
+      medline: '{F_TIAB} AND medline[sb] AND {YEAR}'
+  J:
+    use: 'protocol-excluded numerators (E6)'
+    fields: named_fields
+    metrics:
+      rct_noprot: '{F} AND "Humans"[Mesh] AND "Randomized Controlled Trial"[pt] NOT "Clinical Trial Protocol"[pt] AND {YEAR}'
+  K:
+    use: 'original-research base (E5)'
+    fields: named_fields
+    metrics:
+      den: '{F} AND "Humans"[Mesh] NOT (Review[pt] OR Editorial[pt] OR Letter[pt] OR Comment[pt] OR News[pt]) AND {YEAR}'
+      rct: '{F} AND "Humans"[Mesh] NOT (Review[pt] OR Editorial[pt] OR Letter[pt] OR Comment[pt] OR News[pt]) AND "Randomized Controlled Trial"[pt] AND {YEAR}'
+  M:
+    use: 'disease panel (S9, E12)'
+    fields: panel_disease
+    metrics:
+      den: '{HEADING} AND "Humans"[Mesh] AND {YEAR}'
+      rct: '{HEADING} AND "Humans"[Mesh] AND "Randomized Controlled Trial"[pt] AND {YEAR}'
+  N:
+    use: 'technology panel (S9)'
+    fields: panel_technology
+    metrics:
+      den: '{DESCRIPTOR} AND "Humans"[Mesh] AND {YEAR}'
+      rct: '{DESCRIPTOR} AND "Humans"[Mesh] AND "Randomized Controlled Trial"[pt] AND {YEAR}'
+  Q:
+    use: 'unrestricted record base (E10)'
+    fields: ai_stroke
+    metrics:
+      den: '{F} AND {YEAR}'
+      rct: '{F} AND "Randomized Controlled Trial"[pt] AND {YEAR}'
+  R:
+    use: 'strata (S7)'
+    fields: ai_stroke
+    years: primary_year_only
+    metrics:
+      S: '{F} AND "Humans"[Mesh] AND medline[sb] AND (randomized[tiab] OR randomised[tiab] OR randomly[tiab] OR placebo[tiab] OR trial[ti]) NOT "Randomized Controlled Trial"[pt] AND {YEAR}'
+      R: '{F} AND "Humans"[Mesh] AND medline[sb] NOT "Randomized Controlled Trial"[pt] NOT (randomized[tiab] OR randomised[tiab] OR randomly[tiab] OR placebo[tiab] OR trial[ti]) AND {YEAR}'
+  U:
+    use: 'disease-related AI subset (E12)'
+    fields: [AI]
+    metrics:
+      den: '"Artificial Intelligence"[Mesh] AND "Humans"[Mesh] AND {CLIN_ANY} AND {YEAR}'
+      rct: '"Artificial Intelligence"[Mesh] AND "Humans"[Mesh] AND {CLIN_ANY} AND "Randomized Controlled Trial"[pt] AND {YEAR}'
+  W:
+    use: 'Robotics-excluded AI (E13)'
+    fields: [AI]
+    metrics:
+      den: '("Artificial Intelligence"[Mesh] NOT "Robotics"[Mesh]) AND "Humans"[Mesh] AND {YEAR}'
+      rct: '("Artificial Intelligence"[Mesh] NOT "Robotics"[Mesh]) AND "Humans"[Mesh] AND "Randomized Controlled Trial"[pt] AND {YEAR}'
+  Y:
+    use: 'review and primary-article counts (E14)'
+    fields: named_fields
+    metrics:
+      rev: '{F} AND "Humans"[Mesh] AND (Review[pt] OR "Systematic Review"[pt] OR Meta-Analysis[pt]) AND {YEAR}'
+      prim: '{F} AND "Humans"[Mesh] AND "Journal Article"[pt] NOT (Review[pt] OR "Systematic Review"[pt] OR Meta-Analysis[pt] OR Editorial[pt] OR Comment[pt] OR Letter[pt]) AND {YEAR}'
+
+# Family L (PMID lists, S5, S7, S8, R-check): the family B strings for AI and STROKE and the
+# family R strings (S_f, R_f), publication year 2024. Family O: efetch XML of every PMID in the
+# family B lists and of the sampled PMIDs of S_f and R_f.
+lists:
+  year: 2024
+  fields: ai_stroke
+  cells:
+    - {key: B, family: B, metric: rct, efetch: all}
+    - {key: S, family: R, metric: S, efetch: sampled}
+    - {key: R, family: R, metric: R, efetch: sampled}
+
+# Q13: validation and stratum sampling on frozen Run A lists, publication year 2024, seed 20260904.
+# Sampling by Python random.Random(20260904).sample on the PMID list sorted ascending.
+sampling:
+  seed: 20260904
+  pilot_per_cell: 20            # drawn first, codebook calibration only, not in the formal set
+  v_cells: {list: B, take_all_if_at_most: 200, sample_size: 200}
+  u_cells: {list: S, sample_size: 200}
+  r_check: {list: R, sample_size: 50}
+
+# 12.8 Trial-level variables: DataBankList accession numbers and registration identifiers in
+# title and abstract. Regular expressions are implementation detail fixed with the tagged release;
+# they do not alter the estimand. Matching is case-insensitive; identifiers are normalized
+# (upper case, whitespace and separators removed where the registry format has none).
+identifiers:
+  trial_registry_databanks:
+    - 'ClinicalTrials.gov'
+    - 'ISRCTN'
+    - 'EudraCT'
+    - 'DRKS'
+    - 'ANZCTR'
+    - 'ChiCTR'
+    - 'UMIN-CTR'
+    - 'CTRI'
+    - 'NTR'
+    - 'IRCT'
+    - 'JPRN'
+    - 'PACTR'
+    - 'JapicCTI'
+    - 'ReBec'
+    - 'REPEC'
+    - 'RPCEC'
+    - 'SLCTR'
+    - 'TCTR'
+    - 'CRiS'
+    - 'LBCTR'
+  regex:
+    ClinicalTrials.gov: '\bNCT\s?-?\s?(\d{8})\b'
+    ISRCTN: '\bISRCTN\s?-?\s?(\d{8})\b'
+    EudraCT: '\b(\d{4}-\d{6}-\d{2})\b'
+    DRKS: '\bDRKS\s?-?\s?(\d{8})\b'
+    ACTRN: '\bACTRN\s?-?\s?(\d{14})\b'
+    ChiCTR: '\bChiCTR\s?-?\s?((?:[A-Za-z]{2,4}\s?-\s?)?\d{8}|\d{10})\b'
+    UMIN: '\bUMIN\s?-?\s?(?:CTR\s?-?\s?)?(\d{9})\b'
+    CTRI: '\bCTRI\s?/\s?(\d{4})\s?/\s?(\d{2,3})\s?/\s?(\d{6})\b'
+    NTR: '\bNTR\s?-?\s?(\d{3,5})\b'
+    NL: '\bNL\s?-?\s?(OMON\s?-?\s?\d{4,6}|\d{4,5})\b'
+    IRCT: '\bIRCT\s?(\d{11,14})\s?N\s?(\d{1,3})\b'
+    JPRN: '\bJPRN\s?-\s?([A-Za-z]{3,8}\s?\d{6,12})\b'
+    jRCT: '\bjRCT\s?([sc]?\s?\d{9,10})\b'
+    PACTR: '\bPACTR\s?-?\s?(\d{15,16})\b'

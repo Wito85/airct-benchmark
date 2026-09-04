@@ -1,0 +1,5 @@
+# Runtime dependencies of airct_benchmark (Python 3.10 or newer; standard library otherwise).
+requests>=2.31,<3
+pyyaml>=6.0,<7
+# Test dependency (offline tests only, no network access).
+pytest>=7.4
