@@ -26,8 +26,8 @@ The files `check_catalogue.json` and `smoke_20260904T115824Z.json` are kept with
 
 | Reviewer | Date | `python -m pytest` | `check-catalogue` exit code | Python version | Remarks |
 |---|---|---|---|---|---|
-| Youssef Hachem | 2026-09-04 | 53 passed | 0 | 3.12.4 | confirmed by e-mail of 2026-09-04, commit 27b3e0f |
-| Clara Helene Buszello | 2026-09-04 | 53 passed | 0 | 3.12.4 | confirmed by e-mail of 2026-09-04, commit 27b3e0f |
+| Youssef Hachem | 2026-09-04 | 53 passed | 0 | 3.14.3 | confirmed by e-mail of 2026-09-04, commit cc4038b |
+| Clara Helene Buszello | 2026-09-04 | 53 passed | 0 | 3.14.3 | confirmed by e-mail of 2026-09-04, commit cc4038b |
 
 Each reviewer confirms by completing the row above in a commit of their own (or by e-mail to the guarantor,
 who then completes the row and names the e-mail date in Remarks).
