@@ -4,7 +4,8 @@ Preregistration: OSF https://osf.io/qkb9g/ (DOI 10.17605/OSF.IO/QKB9G), v2.0 of 
 Repository: https://github.com/Wito85/airct-benchmark (MIT License).
 
 The version string is written into the header of every frozen count file (Q9).
-It is set to 1.0.0 with the git tag v1.0 in Step 3 of the work plan.
+Version 1.0.0 is the release tagged v1.0 and archived on Zenodo (DOI 10.5281/zenodo.22299272)
+before the freeze run of 12 October 2026.
 """
 
-__version__ = "1.0.0.dev0"
+__version__ = "1.0.0"
