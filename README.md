@@ -6,7 +6,7 @@ The study compares the proportion of human-subject PubMed records carrying the R
 
 ## Status
 
-Preregistration on OSF in preparation (September 2026). The retrieval pipeline follows the registration. The frozen dataset is retrieved on 12 October 2026 (Run A for analysis, Run B for within-day volatility), independently reproduced on the same day, and deposited on OSF.
+Preregistered on OSF on 4 September 2026 (DOI 10.17605/OSF.IO/QKB9G). The retrieval pipeline follows the registration. The frozen dataset is retrieved on 12 October 2026 (Run A for analysis, Run B for within-day volatility), independently reproduced on the same day, and deposited on OSF.
 
 ## Planned contents
 
@@ -18,13 +18,13 @@ Preregistration on OSF in preparation (September 2026). The retrieval pipeline f
 
 ## Links
 
-- OSF project: to be added
-- OSF registration: to be added
+- OSF project: https://osf.io/ta7xw/
+- OSF registration (4 September 2026, public): https://osf.io/qkb9g/ , DOI 10.17605/OSF.IO/QKB9G
 - Zenodo archive: DOI 10.5281/zenodo.22299272 (reserved; first version at release v1.0)
 
 ## Team
 
-Prem, Richter, Buszello, Willkommen, Hachem, Abullayeva, Eyüpoglu, Polanski (senior and corresponding author, witold.polanski@ukdd.de). Department of Neurosurgery, Universitätsklinikum Carl Gustav Carus, TU Dresden.
+Markus Georg Prem, Sven Richter, Clara Helene Buszello, Sophia Willkommen, Youssef Hachem, Nargiz Abdullayeva, Ilker Y. Eyüpoglu, Witold Polanski (senior and corresponding author, witold.polanski@ukdd.de). Department of Neurosurgery, Universitätsklinikum Carl Gustav Carus, TU Dresden.
 
 ## License
 
