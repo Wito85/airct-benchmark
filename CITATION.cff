@@ -1,0 +1,70 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+type: software
+title: "airct-benchmark: PubMed E-utilities pipeline of the AI-RCT Benchmark study"
+version: 1.0.0
+date-released: 2026-09-04
+license: MIT
+repository-code: "https://github.com/Wito85/airct-benchmark"
+doi: 10.5281/zenodo.22299272
+url: "https://osf.io/qkb9g/"
+abstract: >-
+  Pipeline of the preregistered bibliometric meta-research study "Randomized trial share of
+  medical artificial intelligence literature benchmarked against established clinical fields"
+  (OSF registration DOI 10.17605/OSF.IO/QKB9G). The package retrieves PubMed record counts for a
+  fixed catalogue of 2,034 queries (publication years 2015 to 2024) through the NCBI E-utilities
+  twice in one session on the registered freeze date, retrieves PMID lists and efetch XML for the
+  RCT-tagged and enriched untagged strata of artificial intelligence and stroke in 2024, draws the
+  seeded validation samples, extracts trial registration identifiers, and writes SHA-256 manifests.
+  Every query string is copied character for character from item Q12 of the registration.
+keywords:
+  - artificial intelligence
+  - randomized controlled trials
+  - bibliometrics
+  - meta-research
+  - PubMed
+  - MeSH
+  - preregistration
+authors:
+  - family-names: Prem
+    given-names: Markus Georg
+    orcid: "https://orcid.org/0009-0005-9888-1380"
+    affiliation: "Department of Neurosurgery, Faculty of Medicine and University Hospital Carl Gustav Carus, Technische Universität Dresden, Dresden, Germany"
+  - family-names: Richter
+    given-names: Sven
+    orcid: "https://orcid.org/0000-0003-1648-5754"
+    affiliation: "Department of Neurosurgery, Faculty of Medicine and University Hospital Carl Gustav Carus, Technische Universität Dresden, Dresden, Germany"
+  - family-names: Buszello
+    given-names: Clara Helene
+    orcid: "https://orcid.org/0009-0008-8230-1064"
+    affiliation: "Department of Neurosurgery, Faculty of Medicine and University Hospital Carl Gustav Carus, Technische Universität Dresden, Dresden, Germany"
+  - family-names: Willkommen
+    given-names: Sophia
+    orcid: "https://orcid.org/0009-0003-8993-7720"
+    affiliation: "Department of Neurosurgery, Faculty of Medicine and University Hospital Carl Gustav Carus, Technische Universität Dresden, Dresden, Germany"
+  - family-names: Hachem
+    given-names: Youssef
+    affiliation: "Department of Neurosurgery, Faculty of Medicine and University Hospital Carl Gustav Carus, Technische Universität Dresden, Dresden, Germany"
+  - family-names: Abdullayeva
+    given-names: Nargiz
+    affiliation: "Department of Neurosurgery, Faculty of Medicine and University Hospital Carl Gustav Carus, Technische Universität Dresden, Dresden, Germany"
+  - family-names: Eyüpoglu
+    given-names: Ilker Y.
+    orcid: "https://orcid.org/0000-0002-8185-7764"
+    affiliation: "Department of Neurosurgery, Faculty of Medicine and University Hospital Carl Gustav Carus, Technische Universität Dresden, Dresden, Germany"
+  - family-names: Polanski
+    given-names: Witold
+    orcid: "https://orcid.org/0000-0002-6603-5375"
+    email: witold.polanski@ukdd.de
+    affiliation: "Department of Neurosurgery, Faculty of Medicine and University Hospital Carl Gustav Carus, Technische Universität Dresden, Dresden, Germany"
+references:
+  - type: generic
+    title: "Randomized trial share of medical artificial intelligence literature benchmarked against established clinical fields. Preregistration v2.0"
+    doi: 10.17605/OSF.IO/QKB9G
+    url: "https://osf.io/qkb9g/"
+    date-released: 2026-09-04
+    authors:
+      - family-names: Prem
+        given-names: Markus Georg
+      - family-names: Polanski
+        given-names: Witold
