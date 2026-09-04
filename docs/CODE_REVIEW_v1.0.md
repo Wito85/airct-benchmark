@@ -7,7 +7,7 @@ result is known. This file records that review. Nothing in this file is a result
 ## Repository state reviewed
 
 * Repository: https://github.com/Wito85/airct-benchmark, branch `main`
-* Commit reviewed: `27b3e0f` (Pipeline v1, Step 2: catalogue, E-utilities client, run modes, tests, data dictionary)
+* Commit reviewed: `cc4038b` (Pipeline v1, Step 2: catalogue, E-utilities client, run modes, tests, data dictionary). Its code, catalogue, test and data-dictionary files are byte-identical to those of the release commit tagged `v1.0`; the release commit adds only the version string 1.0.0, `CITATION.cff`, this record, the author section of the README and a copy of the registration text.
 * Catalogue file: `config/catalogue.yaml`, SHA-256 recorded in the header of every frozen file at run time
 * Registration text used for the string identity check: `Preregistration_v2.0_FINAL_2026-09-04.md`
   (OSF https://osf.io/qkb9g/, DOI 10.17605/OSF.IO/QKB9G)
@@ -26,11 +26,10 @@ The files `check_catalogue.json` and `smoke_20260904T115824Z.json` are kept with
 
 | Reviewer | Date | `python -m pytest` | `check-catalogue` exit code | Python version | Remarks |
 |---|---|---|---|---|---|
-| Youssef Hachem | 2026-09-04 | 53 passed | 0 | 3.14.3 | confirmed by e-mail of 2026-09-04, commit cc4038b |
-| Clara Helene Buszello | 2026-09-04 | 53 passed | 0 | 3.14.3 | confirmed by e-mail of 2026-09-04, commit cc4038b |
+| Youssef Hachem | 2026-09-04 | 53 passed | 0 | 3.14.3 | confirmed by e-mail of 2026-09-04; commit cc4038b |
+| Clara Helene Buszello | 2026-09-04 | 53 passed | 0 | 3.14.3 | confirmed by e-mail of 2026-09-04; commit cc4038b |
 
-Each reviewer confirms by completing the row above in a commit of their own (or by e-mail to the guarantor,
-who then completes the row and names the e-mail date in Remarks).
+Rows completed by the guarantor from the reviewers' e-mails of 4 September 2026, which are kept with the project records.
 
 ## Review statements
 
@@ -44,3 +43,11 @@ who then completes the row and names the e-mail date in Remarks).
 
 Tag `v1.0` (package version 1.0.0) approved for archiving on Zenodo (DOI 10.5281/zenodo.22299272) before the freeze run.
 Guarantor: Witold Polanski, 4 September 2026.
+
+## Erratum (added after the release, main branch only)
+
+In the archived release v1.0 (tag of 4 September 2026, 13:02 UTC) the line "Commit reviewed" of this file names
+commit `27b3e0f`. That hash was the initial upload of the Step 2 content; the repository history was rebuilt on
+4 September 2026 and the equivalent commit in the released history is `cc4038b`, whose files are byte-identical
+to the reviewed state. The release itself (code, catalogue, tests, documentation) is unaffected; the tag and the
+Zenodo archive were left unchanged, and this correction applies from the next version on.
