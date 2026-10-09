@@ -11,3 +11,14 @@ dist/
 # run outputs live outside the repository (frozen files are deposited on Zenodo, not in git)
 out/
 *.partial.csv
+# raw IHME files and files with DALY values stay with the authors (IHME user agreement: no redistribution)
+data/gbd/local/
+gbd_local/
+IHME-GBD_*
+IHME_GBD_*
+*_dalys_*
+citation.txt
+# operating system files
+.DS_Store
+._*
+Thumbs.db
