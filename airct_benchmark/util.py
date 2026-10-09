@@ -80,6 +80,20 @@ def git_metadata(cwd: Path | str | None = None) -> dict:
     return meta
 
 
+def source_fingerprint(package_dir: Path | str) -> str:
+    """Hex SHA-256 over the Python sources of the package: for every *.py file of the package directory, in
+    the order of the file names, the file name, the length of the content and the content, the content read
+    with LF line endings. The value identifies the code of a run where no git checkout exists (a folder
+    downloaded as an archive) or where the working tree holds uncommitted files, and it is the same on
+    every platform. It is recomputed from a release with the same function."""
+    h = hashlib.sha256()
+    for path in sorted(Path(package_dir).glob("*.py"), key=lambda q: q.name):
+        content = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+        h.update(f"{path.name}\n{len(content)}\n".encode("utf-8"))
+        h.update(content)
+    return h.hexdigest()
+
+
 def sha256_file(path: Path | str, chunk_size: int = 1 << 20) -> str:
     """Hex SHA-256 of a file."""
     h = hashlib.sha256()

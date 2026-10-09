@@ -1,0 +1,23 @@
+rank,cause_id,gbd_cause,level1_group,decision,expression,mesh_ui,date_introduced,scope_relation,inclusion_note
+1,,Ischemic heart disease,NCD,mapped,"""Myocardial Ischemia""[Mesh]",D017202,1993-01-01,exact,"Contains the named field Myocardial Infarction (MI), which stays a separate comparator."
+2,,Neonatal disorders,CMNN,mapped,"""Infant, Newborn, Diseases""[Mesh]",D007232,1966-01-01,broader,"Narrowest heading that contains preterm-birth complications, birth asphyxia, neonatal sepsis and neonatal jaundice. Over-inclusion: hereditary conditions filed under this heading, above all Cystic Fibrosis (tree number C16.614.213), also Ichthyosis and Severe Combined Immunodeficiency."
+3,,Stroke,NCD,mapped,"""Stroke""[Mesh]",D020521,2000-01-01,exact,"Named field STROKE; cells are shared with the registered families, not queried again."
+4,,Lower respiratory infections,CMNN,mapped,"(""Pneumonia""[Mesh] NOT ""COVID-19""[Mesh])",D011014 NOT D000086382,1963-01-01,narrower,"COVID-19 (D000086382, introduced 2021, applied back to 2020) is a child of Pneumonia, Viral. The exploded Pneumonia heading therefore contains the COVID-19 literature from 2020 on, although GBD counts COVID-19 as a separate cause and COVID is a named field of this study. Removing it keeps the series comparable before and after 2020. Under-inclusion: bronchiolitis and acute bronchitis are not covered. Records on other pneumonia that also carry the COVID-19 heading are lost."
+5,,Diabetes mellitus,NCD,mapped,"""Diabetes Mellitus""[Mesh]",D003920,1966-01-01,exact,"Named field DM; cells are shared with the registered families, not queried again."
+7,,Chronic obstructive pulmonary disease,NCD,mapped,"""Pulmonary Disease, Chronic Obstructive""[Mesh]",D029424,2002-01-01,exact,
+9,,Low back pain,NCD,mapped,"""Low Back Pain""[Mesh]",D017116,1993-01-01,exact,
+10,,Diarrheal diseases,CMNN,mapped,"""Diarrhea""[Mesh]",D003967,1966-01-01,mixed,Symptom heading. Over-inclusion: non-infectious diarrhoea (for example drug-induced). Under-inclusion: records indexed only under a pathogen-specific heading (for example cholera or rotavirus infections).
+11,,Depressive disorders,NCD,mapped,"""Depressive Disorder""[Mesh]",D003866,1981-01-01,exact,Under-inclusion: records indexed only under the separate heading Depression (symptom or behaviour) are not included (MeSH annotation: do not confuse with DEPRESSION).
+12,,Anxiety disorders,NCD,mapped,"""Anxiety Disorders""[Mesh]",D001008,1981-01-01,exact,
+13,,Congenital birth defects,NCD,mapped,"""Congenital Abnormalities""[Mesh]",D000013,2008-01-01,exact,History note 2008 (1963): the heading was named Abnormalities until 2007; it exists for the whole study window.
+14,,Age-related and other hearing loss,NCD,mapped,"""Hearing Loss""[Mesh]",D034381,2003-01-01,broader,"Over-inclusion: hearing loss of every cause, including causes that GBD assigns elsewhere."
+15,,Malaria,CMNN,mapped,"""Malaria""[Mesh]",D008288,1960-01-01,exact,
+16,,"Tracheal, bronchus, and lung cancer",NCD,mapped,"""Lung Neoplasms""[Mesh]",D008175,1966-01-01,mixed,Under-inclusion: tracheal neoplasms are not covered. Over-inclusion: malignant mesothelioma (a separate GBD cause) and pulmonary nodules are filed under this heading.
+17,,Chronic kidney disease,NCD,mapped,"""Renal Insufficiency, Chronic""[Mesh]",D051436,2006-01-01,exact,
+18,,Headache disorders,NCD,mapped,"""Headache Disorders""[Mesh]",D020773,2000-01-01,broader,Over-inclusion: secondary headache disorders. Under-inclusion: records indexed only under the symptom heading Headache.
+19,,Hypertensive heart disease,NCD,excluded rule (d),,,,,no single MeSH descriptor with a corresponding scope note
+20,,HIV/AIDS,CMNN,mapped,"""HIV Infections""[Mesh]",D015658,1990-01-01,exact,
+21,,Tuberculosis,CMNN,mapped,"""Tuberculosis""[Mesh]",D014376,1960-01-01,exact,Includes latent tuberculosis.
+22,,Cirrhosis and other chronic liver diseases,NCD,mapped,"""Liver Cirrhosis""[Mesh]",D008103,1960-01-01,narrower,"Core entity of the cause. Under-inclusion: chronic liver disease without cirrhosis (for example fatty liver disease, chronic hepatitis, alcoholic liver disease other than cirrhosis)."
+23,,Synthetic cause (test fixture),NCD,mapped,"""Synthetic Heading After 2015""[Mesh]",D999999,2019-01-01,exact,Synthetic row of the test suite: a descriptor introduced after 2015.
+24,,Alzheimer's disease and other dementias,NCD,mapped,"""Dementia""[Mesh]",D003704,1981-01-01,exact,
