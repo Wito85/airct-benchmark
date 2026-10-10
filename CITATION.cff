@@ -3,6 +3,7 @@ message: "If you use this software, please cite it using the metadata below."
 type: software
 title: "airct-benchmark: PubMed E-utilities pipeline of the AI-RCT Benchmark study"
 version: 1.1.0
+date-released: 2026-10-11
 # date-released and doi are set with the release tag v1.1.0 (see docs/CODE_REVIEW_v1.1.md, release checklist).
 # The DOI below is the Zenodo record of v1.0 (4 September 2026).
 license: MIT
