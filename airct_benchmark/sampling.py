@@ -17,6 +17,12 @@ input. The pilot is its first 20 elements, the formal set the following ones, an
 sampling sequence" literally and makes every draw reproducible from the frozen list alone.
 Edge cases (census cells with 200 or fewer records, populations smaller than pilot plus formal
 size) are handled as stated in ``draw_cell`` and flagged in the report for the SAP.
+
+Protocol Amendment v3.0 (Section 6.1, decision D22) splits the STROKE cells by AI status:
+V-AI, V-STROKE-AI, V-STROKE-nonAI, U-AI, U-STROKE-AI, U-STROKE-nonAI, R-AI, R-STROKE. The cells
+are listed in the catalogue (``amendment_sampling``) and drawn by ``draw_cells`` with the same
+registered function, seed and rules. A V-cell or U-cell with 200 records or fewer is rated
+completely (census); only a larger cell is a random sample (decision D23 uses this distinction).
 """
 
 from __future__ import annotations
@@ -122,7 +128,8 @@ def replace_missing(sample: CellSample, missing: Iterable[int]) -> list[int]:
 
 
 def draw_all_cells(lists: dict[str, list[int]], config: dict) -> list[CellSample]:
-    """Draw every registered cell from the frozen lists.
+    """Draw the six cells of the registration v2.0 from the frozen lists (kept as the registered
+    reference; the pipeline draws the cells of Amendment v3.0 with ``draw_cells``).
 
     ``lists`` maps list keys to ascending PMID lists: 'B_AI', 'B_STROKE', 'S_AI', 'S_STROKE',
     'R_AI', 'R_STROKE'. ``config`` is the catalogue's ``sampling`` section."""
@@ -139,6 +146,22 @@ def draw_all_cells(lists: dict[str, list[int]], config: dict) -> list[CellSample
     for fld in ("AI", "STROKE"):
         out.append(draw_cell(f"R-{fld}", f"{r['list']}_{fld}", lists[f"{r['list']}_{fld}"], int(r["sample_size"]),
                              pilot_size=pilot, seed=seed))
+    return out
+
+
+def draw_cells(lists: dict[str, list[int]], config: dict) -> list[CellSample]:
+    """Draw every validation cell of Amendment v3.0 from the frozen lists.
+
+    ``lists`` maps list keys (B_AI, DB_STROKE, ...) to PMID lists. ``config`` is the catalogue's
+    ``amendment_sampling`` section: seed, pilot size and one entry per cell with ``cell``,
+    ``list``, ``sample_size`` and optionally ``take_all_if_at_most`` (census rule)."""
+    seed = int(config["seed"])
+    pilot = int(config["pilot_per_cell"])
+    out: list[CellSample] = []
+    for c in config["cells"]:
+        take_all = c.get("take_all_if_at_most")
+        out.append(draw_cell(c["cell"], c["list"], lists[c["list"]], int(c["sample_size"]), pilot_size=pilot,
+                             take_all_if_at_most=(int(take_all) if take_all is not None else None), seed=seed))
     return out
 
 

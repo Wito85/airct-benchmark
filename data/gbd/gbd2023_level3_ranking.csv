@@ -1,0 +1,177 @@
+rank,cause_id,cause_name,level1_group,panel_rule_result,exclusion_reason
+1,493,Ischemic heart disease,NCD,kept for mapping,
+2,380,Neonatal disorders,CMNN,kept for mapping,
+3,494,Stroke,NCD,kept for mapping,
+4,322,Lower respiratory infections,CMNN,kept for mapping,
+5,587,Diabetes mellitus,NCD,kept for mapping,
+6,689,Road injuries,Injuries,excluded,rule (a): Level 1 group Injuries
+7,509,Chronic obstructive pulmonary disease,NCD,kept for mapping,
+8,697,Falls,Injuries,excluded,rule (a): Level 1 group Injuries
+9,630,Low back pain,NCD,kept for mapping,
+10,302,Diarrheal diseases,CMNN,kept for mapping,
+11,567,Depressive disorders,NCD,kept for mapping,
+12,571,Anxiety disorders,NCD,kept for mapping,
+13,641,Congenital birth defects,NCD,kept for mapping,
+14,674,Age-related and other hearing loss,NCD,kept for mapping,
+15,345,Malaria,CMNN,kept for mapping,
+16,426,"Tracheal, bronchus, and lung cancer",NCD,kept for mapping,
+17,589,Chronic kidney disease,NCD,kept for mapping,
+18,972,Headache disorders,NCD,kept for mapping,
+19,639,Other musculoskeletal disorders,NCD,excluded,rule (c): residual cause (name begins with Other)
+20,298,HIV/AIDS,CMNN,kept for mapping,
+21,297,Tuberculosis,CMNN,kept for mapping,
+22,521,Cirrhosis and other chronic liver diseases,NCD,kept for mapping,
+23,543,Alzheimer's disease and other dementias,NCD,kept for mapping,
+24,390,Dietary iron deficiency,CMNN,kept for mapping,
+25,718,Self-harm,Injuries,excluded,rule (a): Level 1 group Injuries
+26,1048,COVID-19,CMNN,kept for mapping,
+27,724,Interpersonal violence,Injuries,excluded,rule (a): Level 1 group Injuries
+28,603,Gynecological diseases,NCD,kept for mapping,
+29,498,Hypertensive heart disease,NCD,kept for mapping,
+30,441,Colon and rectum cancer,NCD,kept for mapping,
+31,515,Asthma,NCD,kept for mapping,
+32,429,Breast cancer,NCD,kept for mapping,
+33,680,Oral disorders,NCD,kept for mapping,
+34,981,Blindness and vision loss,NCD,kept for mapping,
+35,414,Stomach cancer,NCD,kept for mapping,
+36,628,Osteoarthritis,NCD,kept for mapping,
+37,631,Neck pain,NCD,kept for mapping,
+38,560,Alcohol use disorders,NCD,kept for mapping,
+39,561,Drug use disorders,NCD,kept for mapping,
+40,332,Meningitis,CMNN,kept for mapping,
+41,698,Drowning,Injuries,excluded,rule (a): Level 1 group Injuries
+42,559,Schizophrenia,NCD,kept for mapping,
+43,366,Maternal disorders,CMNN,kept for mapping,
+44,545,Idiopathic epilepsy,NCD,kept for mapping,
+45,992,Upper digestive system diseases,NCD,kept for mapping,
+46,654,Dermatitis,NCD,kept for mapping,
+47,613,Hemoglobinopathies and hemolytic anemias,NCD,kept for mapping,
+48,619,"Endocrine, metabolic, blood, and immune disorders",NCD,kept for mapping,
+49,492,Rheumatic heart disease,NCD,kept for mapping,
+50,387,Protein-energy malnutrition,CMNN,kept for mapping,
+51,411,Esophageal cancer,NCD,kept for mapping,
+52,417,Liver cancer,NCD,kept for mapping,
+53,432,Cervical cancer,NCD,kept for mapping,
+54,945,Conflict and terrorism,Injuries,excluded,rule (a): Level 1 group Injuries
+55,716,Other unintentional injuries,Injuries,excluded,rule (a): Level 1 group Injuries
+56,341,Measles,CMNN,kept for mapping,
+57,456,Pancreatic cancer,NCD,kept for mapping,
+58,487,Leukemia,NCD,kept for mapping,
+59,499,Cardiomyopathy and myocarditis,NCD,kept for mapping,
+60,594,Urinary diseases and male infertility,NCD,kept for mapping,
+61,507,Other cardiovascular and circulatory diseases,NCD,excluded,rule (c): residual cause (name begins with Other)
+62,704,Exposure to mechanical forces,Injuries,excluded,rule (a): Level 1 group Injuries
+63,699,"Fire, heat, and hot substances",Injuries,excluded,rule (a): Level 1 group Injuries
+64,339,Pertussis,CMNN,kept for mapping,
+65,575,Autism spectrum disorders,NCD,kept for mapping,
+66,585,Other mental disorders,NCD,excluded,rule (c): residual cause (name begins with Other)
+67,500,Atrial fibrillation and flutter,NCD,kept for mapping,
+68,408,Other unspecified infectious diseases,CMNN,excluded,rule (c): residual cause (name begins with Other)
+69,477,Brain and central nervous system cancer,NCD,kept for mapping,
+70,438,Prostate cancer,NCD,kept for mapping,
+71,485,Non-Hodgkin lymphoma,NCD,kept for mapping,
+72,534,Gallbladder and biliary diseases,NCD,kept for mapping,
+73,393,Sexually transmitted infections excluding HIV,CMNN,kept for mapping,
+74,544,Parkinson's disease,NCD,kept for mapping,
+75,570,Bipolar disorder,NCD,kept for mapping,
+76,530,Paralytic ileus and intestinal obstruction,NCD,kept for mapping,
+77,489,Other malignant neoplasms,NCD,excluded,rule (c): residual cause (name begins with Other)
+78,712,Foreign body,Injuries,excluded,rule (a): Level 1 group Injuries
+79,465,Ovarian cancer,NCD,kept for mapping,
+80,444,Lip and oral cavity cancer,NCD,kept for mapping,
+81,328,Upper respiratory infections,CMNN,kept for mapping,
+82,958,Typhoid and paratyphoid,CMNN,kept for mapping,
+83,557,Other neurological disorders,NCD,excluded,rule (c): residual cause (name begins with Other)
+84,959,Invasive Non-typhoidal Salmonella (iNTS),CMNN,kept for mapping,
+85,709,Animal contact,Injuries,excluded,rule (a): Level 1 group Injuries
+86,400,Acute hepatitis,CMNN,kept for mapping,
+87,365,Other neglected tropical diseases,CMNN,excluded,rule (c): residual cause (name begins with Other)
+88,664,Urticaria,NCD,kept for mapping,
+89,579,Conduct disorder,NCD,kept for mapping,
+90,729,Exposure to forces of nature,Injuries,excluded,rule (a): Level 1 group Injuries
+91,695,Other transport injuries,Injuries,excluded,rule (a): Level 1 group Injuries
+92,474,Bladder cancer,NCD,kept for mapping,
+93,516,Interstitial lung disease and pulmonary sarcoidosis,NCD,kept for mapping,
+94,337,Encephalitis,CMNN,kept for mapping,
+95,535,Pancreatitis,NCD,kept for mapping,
+96,471,Kidney cancer,NCD,kept for mapping,
+97,453,Gallbladder and biliary tract cancer,NCD,kept for mapping,
+98,708,Adverse effects of medical treatment,Injuries,excluded,rule (a): Level 1 group Injuries
+99,572,Eating disorders,NCD,kept for mapping,
+100,578,Attention-deficit/hyperactivity disorder,NCD,kept for mapping,
+101,700,Poisonings,Injuries,excluded,rule (a): Level 1 group Injuries
+102,520,Other chronic respiratory diseases,NCD,excluded,rule (c): residual cause (name begins with Other)
+103,582,Idiopathic developmental intellectual disability,NCD,kept for mapping,
+104,423,Larynx cancer,NCD,kept for mapping,
+105,1161,Other digestive diseases,NCD,excluded,rule (c): residual cause (name begins with Other)
+106,504,Non-rheumatic valvular heart disease,NCD,kept for mapping,
+107,501,Aortic aneurysm,NCD,kept for mapping,
+108,490,Other neoplasms,NCD,excluded,rule (c): residual cause (name begins with Other)
+109,627,Rheumatoid arthritis,NCD,kept for mapping,
+110,450,Other pharynx cancer,NCD,excluded,rule (c): residual cause (name begins with Other)
+111,658,Scabies,NCD,kept for mapping,
+112,842,Environmental heat and cold exposure,Injuries,excluded,rule (a): Level 1 group Injuries
+113,1012,Malignant neoplasm of bone and articular cartilage,NCD,kept for mapping,
+114,357,Dengue,CMNN,kept for mapping,
+115,679,Other sense organ diseases,NCD,excluded,rule (c): residual cause (name begins with Other)
+116,980,Bacterial skin diseases,NCD,kept for mapping,
+117,435,Uterine cancer,NCD,kept for mapping,
+118,486,Multiple myeloma,NCD,kept for mapping,
+119,655,Psoriasis,NCD,kept for mapping,
+120,940,Electrocution,Injuries,excluded,rule (a): Level 1 group Injuries
+121,447,Nasopharynx cancer,NCD,kept for mapping,
+122,329,Otitis media,CMNN,kept for mapping,
+123,531,"Inguinal, femoral, and abdominal hernia",NCD,kept for mapping,
+124,503,Endocarditis,NCD,kept for mapping,
+125,686,Sudden infant death syndrome,NCD,kept for mapping,
+126,388,Iodine deficiency,CMNN,kept for mapping,
+127,1011,Soft tissue and other extraosseous sarcomas,NCD,kept for mapping,
+128,351,Schistosomiasis,CMNN,kept for mapping,
+129,659,Fungal skin diseases,NCD,kept for mapping,
+130,502,Lower extremity peripheral arterial disease,NCD,kept for mapping,
+131,459,Malignant skin melanoma,NCD,kept for mapping,
+132,660,Viral skin diseases,NCD,kept for mapping,
+133,632,Gout,NCD,kept for mapping,
+134,533,Vascular intestinal disorders,NCD,kept for mapping,
+135,391,Other nutritional deficiencies,CMNN,excluded,rule (c): residual cause (name begins with Other)
+136,532,Inflammatory bowel disease,NCD,kept for mapping,
+137,480,Thyroid cancer,NCD,kept for mapping,
+138,360,Intestinal nematode infections,CMNN,kept for mapping,
+139,354,Lymphatic filariasis,CMNN,kept for mapping,
+140,529,Appendicitis,NCD,kept for mapping,
+141,668,Other skin and subcutaneous diseases,NCD,excluded,rule (c): residual cause (name begins with Other)
+142,462,Non-melanoma skin cancer,NCD,kept for mapping,
+143,340,Tetanus,CMNN,kept for mapping,
+144,554,Motor neuron disease,NCD,kept for mapping,
+145,484,Hodgkin lymphoma,NCD,kept for mapping,
+146,352,Cysticercosis,CMNN,kept for mapping,
+147,661,Acne vulgaris,NCD,kept for mapping,
+148,665,Decubitus ulcer,NCD,kept for mapping,
+149,347,Leishmaniasis,CMNN,kept for mapping,
+150,389,Vitamin A deficiency,CMNN,kept for mapping,
+151,546,Multiple sclerosis,NCD,kept for mapping,
+152,854,Police conflict and executions,Injuries,excluded,rule (a): Level 1 group Injuries
+153,364,Food-borne trematodiases,CMNN,kept for mapping,
+154,355,Onchocerciasis,CMNN,kept for mapping,
+155,359,Rabies,CMNN,kept for mapping,
+156,342,Varicella and herpes zoster,CMNN,kept for mapping,
+157,1004,Pulmonary Arterial Hypertension,NCD,kept for mapping,
+158,483,Mesothelioma,NCD,kept for mapping,
+159,468,Testicular cancer,NCD,kept for mapping,
+160,510,Pneumoconiosis,NCD,kept for mapping,
+161,1008,Eye cancer,NCD,kept for mapping,
+162,1013,Neuroblastoma and other peripheral nervous cell tumors,NCD,kept for mapping,
+163,338,Diphtheria,CMNN,kept for mapping,
+164,588,Acute glomerulonephritis,NCD,kept for mapping,
+165,358,Yellow fever,CMNN,kept for mapping,
+166,346,Chagas disease,CMNN,kept for mapping,
+167,356,Trachoma,CMNN,kept for mapping,
+168,662,Alopecia areata,NCD,kept for mapping,
+169,663,Pruritus,NCD,kept for mapping,
+170,353,Cystic echinococcosis,CMNN,kept for mapping,
+171,321,Other intestinal infectious diseases,CMNN,excluded,rule (c): residual cause (name begins with Other)
+172,350,African trypanosomiasis,CMNN,kept for mapping,
+173,405,Leprosy,CMNN,kept for mapping,
+174,935,Zika virus,CMNN,kept for mapping,
+175,843,Ebola,CMNN,kept for mapping,
+176,936,Guinea worm disease,CMNN,kept for mapping,

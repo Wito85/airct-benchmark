@@ -2,8 +2,9 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it using the metadata below."
 type: software
 title: "airct-benchmark: PubMed E-utilities pipeline of the AI-RCT Benchmark study"
-version: 1.0.0
-date-released: 2026-09-04
+version: 1.1.0
+# date-released and doi are set with the release tag v1.1.0 (see docs/CODE_REVIEW_v1.1.md, release checklist).
+# The DOI below is the Zenodo record of v1.0 (4 September 2026).
 license: MIT
 repository-code: "https://github.com/Wito85/airct-benchmark"
 doi: 10.5281/zenodo.22299272
@@ -11,12 +12,15 @@ url: "https://osf.io/qkb9g/"
 abstract: >-
   Pipeline of the preregistered bibliometric meta-research study "Randomized trial share of
   medical artificial intelligence literature benchmarked against established clinical fields"
-  (OSF registration DOI 10.17605/OSF.IO/QKB9G). The package retrieves PubMed record counts for a
-  fixed catalogue of 2,034 queries (publication years 2015 to 2024) through the NCBI E-utilities
-  twice in one session on the registered freeze date, retrieves PMID lists and efetch XML for the
-  RCT-tagged and enriched untagged strata of artificial intelligence and stroke in 2024, draws the
-  seeded validation samples, extracts trial registration identifiers, and writes SHA-256 manifests.
-  Every query string is copied character for character from item Q12 of the registration.
+  (OSF registration DOI 10.17605/OSF.IO/QKB9G, with Protocol Amendment v3.0). The package
+  retrieves PubMed record counts for a fixed catalogue of queries (publication years 2015 to 2024;
+  the 2,034 registered queries and the query families added by the amendment) through the NCBI
+  E-utilities twice in one session on the registered freeze date, retrieves PMID lists and efetch
+  XML for the RCT-tagged and enriched untagged strata of artificial intelligence and stroke in
+  2024, the stroke strata split by artificial intelligence indexing, draws the seeded validation
+  samples, extracts trial registration identifiers, and writes SHA-256 manifests. Every query
+  string is copied character for character from item Q12 of the registration or from Section 4
+  of the amendment.
 keywords:
   - artificial intelligence
   - randomized controlled trials

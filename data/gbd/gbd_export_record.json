@@ -1,0 +1,69 @@
+{
+  "source": "Global Burden of Disease Study 2023 (GBD 2023), GBD 2023 Disease and Injury and Risk Factor Collaborators. Lancet 2025;406(10513):1873 to 1922, DOI 10.1016/S0140-6736(25)01637-X",
+  "source_identifier": "Source: Institute for Health Metrics and Evaluation. Used with permission. All rights reserved.",
+  "data_path": "GBD Results Tool, https://vizhub.healthdata.org/gbd-results/",
+  "settings": {
+    "measure": "DALYs (Disability-Adjusted Life Years)",
+    "metric": "Number",
+    "location": "Global",
+    "age": "All ages",
+    "sex": "Both",
+    "year": 2023,
+    "cause": "all causes or all Level 3 causes"
+  },
+  "stratum_as_named_in_the_export": {
+    "measure": "DALYs (Disability-Adjusted Life Years)",
+    "location": "Global",
+    "sex": "Beide",
+    "age": "Alle Altersgruppen",
+    "metric": "Anzahl"
+  },
+  "stratum_identified_by": "ids of the GBD Results Tool (measure 2, location 1, sex 3, age 22, metric 1, population group 1) where the export carries them, else English names; cause names from the hierarchy file",
+  "data_citation_delivered_with_the_download": "GBD Results tool: Use the following to cite data included in this download: Global Burden of Disease Collaborative Network. Global Burden of Disease Study 2023 (GBD 2023) Results. Seattle, United States: Institute for Health Metrics and Evaluation (IHME), 2024. Available from https://vizhub.healthdata.org/gbd-results/.",
+  "permalink": "https://vizhub.healthdata.org/gbd-results/result/cba5012c3acc5245d5e8c6d034403867",
+  "exported_by": "Clara Helene Buszello",
+  "export_date": "2026-10-08",
+  "ranked_utc": "2026-10-08T06:53:10Z",
+  "raw_export": {
+    "file_name": "IHME-GBD_2023_DATA-cba5012c-1.csv",
+    "sha256": "e5db2bc0580a4bf0e1897eab8834c6521e138e5526d4fa05e0baa2c6b1e406f4",
+    "rows": 760
+  },
+  "cause_hierarchy": {
+    "file_name": "IHME_GBD_2023_HIERARCHIES_Y2025M10D23.XLSX",
+    "sha256": "992ad95d6902a79f62a0b24e4d70e90a89dbdf6db23beaa5d92f769dea892e46",
+    "read_from": "IHME_GBD_2023_HIERARCHIES_Y2025M10D23.XLSX, worksheet 'Cause Hierarchy'"
+  },
+  "level3_causes_ranked": 176,
+  "all_causes_check": {
+    "done": true,
+    "level3_sum_over_all_causes": 1.0,
+    "tolerance": 0.005
+  },
+  "export_aggregates_outside_hierarchy_ignored": [],
+  "export_causes_outside_hierarchy_not_ranked": [],
+  "hierarchy_aggregates_not_ranked": [
+    "Total Cancers excluding Non-melanoma skin cancer",
+    "Total burden related to Non-alcoholic fatty liver disease (NAFLD)",
+    "Total burden related to hepatitis B",
+    "Total burden related to hepatitis C",
+    "Total cancers"
+  ],
+  "causes_above_level_3_ranked_as_themselves": [],
+  "names_spelled_differently_in_export_and_hierarchy": [],
+  "notes": [
+    "the export is not in English (sex 'Beide', age 'Alle Altersgruppen', metric 'Anzahl'): the stratum and the causes were identified by their ids, and the cause names are those of the hierarchy file",
+    "349 cause name(s) of the export differ from the names of the hierarchy file (language of the export)",
+    "aggregates across causes listed in the hierarchy file at Level 1 to 3 were not ranked: ['Total Cancers excluding Non-melanoma skin cancer', 'Total burden related to Non-alcoholic fatty liver disease (NAFLD)', 'Total burden related to hepatitis B', 'Total burden related to hepatitis C', 'Total cancers']"
+  ],
+  "ranking_with_values_kept_by_the_authors": {
+    "file_name": "gbd2023_level3_dalys_global_2023.csv",
+    "sha256": "971d1f8f5aeef8b0c93c04c789820d2444d099afb9a664e57b401842e0662bd4"
+  },
+  "ranking_public": {
+    "file": "data/gbd/gbd2023_level3_ranking.csv",
+    "sha256": "df1e75774d0989d4cb04322ff722b4e173e747078cfaeb2962fafc0616656a39"
+  },
+  "hash_rule": "raw IHME files: SHA-256 of the file bytes; text files written by this script: SHA-256 of the UTF-8 content with LF line endings",
+  "note": "The raw export, the hierarchy file and the ranking with DALY values are kept by the authors and are not redistributed; their SHA-256 hashes are stated here."
+}

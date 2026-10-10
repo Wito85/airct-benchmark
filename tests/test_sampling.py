@@ -95,3 +95,42 @@ def test_draw_all_cells_from_catalogue_config(catalogue, tmp_path):
     assert text[1].startswith("V-STROKE,pilot,1,")
     assert text[21].startswith("V-STROKE,formal,1,")
     assert len(text) == 1 + 20 + 200
+
+
+def test_draw_cells_of_amendment_v3_0(catalogue, tmp_path):
+    """Section 6.1: the STROKE cells are split by AI status; a V-cell or U-cell with 200 records or
+    fewer is rated completely, a larger one is a seeded sample of 200 with 20 pilot records first."""
+    from airct_benchmark.sampling import draw_cells
+
+    lists = {
+        "B_AI": list(range(1, 151)),               # 150: census
+        "B_STROKE": list(range(1, 1201)),
+        "S_AI": list(range(1, 3001)),
+        "S_STROKE": list(range(1, 3001)),
+        "R_AI": list(range(1, 20001)),
+        "R_STROKE": list(range(1, 20001)),
+        "DB_STROKE": list(range(1, 201)),          # exactly 200: census
+        "ERCT_STROKE": list(range(201, 1201)),     # 1,000: sample of 200
+        "SAI_STROKE": list(range(1, 202)),         # 201: sample (only 181 left after the pilot, flagged)
+        "SNONAI_STROKE": list(range(202, 3001)),
+    }
+    samples = draw_cells(lists, catalogue.amendment_sampling)
+    by_cell = {s.cell: s for s in samples}
+    assert list(by_cell) == ["V-AI", "V-STROKE-AI", "V-STROKE-nonAI", "U-AI", "U-STROKE-AI", "U-STROKE-nonAI", "R-AI", "R-STROKE"]
+    assert by_cell["V-AI"].rule == "census" and len(by_cell["V-AI"].formal) == 150 and by_cell["V-AI"].pilot == []
+    assert by_cell["V-STROKE-AI"].rule == "census" and by_cell["V-STROKE-AI"].formal == list(range(1, 201))
+    assert by_cell["V-STROKE-AI"].source_list == "DB_STROKE"
+    seq = seeded_sequence(range(201, 1201))
+    assert by_cell["V-STROKE-nonAI"].pilot == seq[:20] and by_cell["V-STROKE-nonAI"].formal == seq[20:220]
+    assert by_cell["V-STROKE-nonAI"].reserve == seq[220:]
+    assert len(by_cell["U-AI"].pilot) == 20 and len(by_cell["U-AI"].formal) == 200
+    assert by_cell["U-STROKE-AI"].rule != "census" and len(by_cell["U-STROKE-AI"].formal) == 181
+    assert any("formal shortfall" in n for n in by_cell["U-STROKE-AI"].notes)
+    assert len(by_cell["U-STROKE-nonAI"].formal) == 200 and by_cell["U-STROKE-nonAI"].population_size == 2799
+    assert len(by_cell["R-AI"].formal) == 50 and len(by_cell["R-STROKE"].formal) == 50
+    # the unchanged cells of v2.0 are drawn exactly as the registered function draws them
+    registered = {s.cell: s for s in draw_all_cells(lists, catalogue.raw["sampling"])}
+    for cell in ("V-AI", "U-AI", "R-AI", "R-STROKE"):
+        assert (by_cell[cell].pilot, by_cell[cell].formal) == (registered[cell].pilot, registered[cell].formal), cell
+    paths = write_cell_csvs(samples, tmp_path)
+    assert [p.name for p in paths] == [f"sample_{c}.csv" for c in by_cell]
