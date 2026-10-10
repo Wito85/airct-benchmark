@@ -250,5 +250,5 @@ Markus Georg Prem (1; ORCID 0009-0005-9888-1380), Sven Richter (1, 2; ORCID 0000
 Roles as registered: pipeline lead, Prem; validation raters, Polanski and Prem; second raters of the untagged strata, Richter and Willkommen; adjudication, Eyüpoglu; statistical analysis plan, Polanski; independent reproduction, Hachem and Buszello; guarantor, Polanski. Pre-freeze code review: see `docs/CODE_REVIEW_v1.0.md` and `docs/CODE_REVIEW_v1.1.md`. GBD panel mapping: Polanski and Eyüpoglu.
 
 ## Citation
-
+Version 1.1.0 (tag v1.1.0, commit 9e2a617bcaf844f4ff6aefdfc33803181a61e782, released 10 October 2026) is archived on Zenodo under DOI 10.5281/zenodo.23280203; the concept DOI 10.5281/zenodo.23280130 resolves to the latest version from 1.1.0 onwards. Version 1.0 is archived under DOI 10.5281/zenodo.22299272.
 See `CITATION.cff`. Software archive: Zenodo DOI 10.5281/zenodo.22299272. Registration: OSF DOI 10.17605/OSF.IO/QKB9G.
