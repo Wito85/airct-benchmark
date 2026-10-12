@@ -40,7 +40,7 @@ Review statements (to be confirmed by the reviewers):
 
 ## Release
 
-Merge of `release-1.1.1` into `main` (pull request, merge commit): [hash, UTC; Polanski]. Tag `v1.1.1` on commit [hash; Polanski]. GitHub release "v1.1.1: PMID lists above the service limit read in date ranges". Zenodo: the GitHub integration creates the version record in the series 10.5281/zenodo.23280130; version DOI [10.5281/zenodo.XXXXXXXX; Polanski]. `check-catalogue` on the tagged commit: [source SHA-256 as printed; Prem].
+Merge of `release-1.1.1` into `main` (pull request, merge commit): [hash, UTC; Polanski]. Tag `v1.1.1` on commit [hash; Polanski]. GitHub release "v1.1.1: PMID lists above the service limit read in date ranges". Zenodo: the GitHub integration creates the version record in the series 10.5281/zenodo.23280130; version DOI [10.5281/zenodo.23314880; Polanski]. `check-catalogue` on the tagged commit: [source SHA-256 as printed; Prem].
 
 ## Rerun of the lists (same retrieval date)
 
