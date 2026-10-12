@@ -6,8 +6,11 @@
 * HTTP 429 and 5xx (and transport errors) are retried with backoff 1, 2, 4, 8, 16, 32 seconds,
   at most six attempts in total.
 * The raw body of every response (every attempt) is saved as a file with a UTC timestamp.
-* PMID lists: esearch with retmax and retstart up to 10,000 identifiers, otherwise usehistory=y and
-  retrieval of the identifier list from the history server (efetch rettype=uilist).
+* PMID lists: esearch with retmax and retstart up to 10,000 identifiers. Above that size PubMed
+  delivers no more than the first 10,000 identifiers of a query, also from the history server
+  (observed on 12 October 2026, version 1.1.1): the list is then read in publication date ranges
+  of its year, each range below the limit, with the registered query string unchanged inside every
+  range request; the sum of the range counts must equal the count of the unchanged query.
 * efetch retmode=xml in batches of 200 PMIDs, GET or POST depending on the URL length.
 
 The network layer is injectable (``session``) so that the test suite runs fully offline.
@@ -17,8 +20,10 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import time
 from dataclasses import dataclass, field
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Any, Callable, Iterable, Protocol
 from urllib.parse import urlencode
@@ -28,6 +33,26 @@ from .util import Redactor, safe_filename, utc_compact, utc_iso, utc_now
 log = logging.getLogger("airct_benchmark.eutils")
 
 DEFAULT_BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
+
+# PubMed returns at most the first 10,000 identifiers of a result set, from esearch and from the
+# history server alike (efetch rettype=uilist returned 9,999 identifiers and then an empty page on
+# 12 October 2026). A list above this size is read in date ranges whose counts stay below the limit.
+LIST_SERVICE_LIMIT = 9999
+PARTITION_FIELD = "pdat"            # publication date: the field that defines the year of every list
+FALLBACK_FIELD = "crdt"             # create date: second axis when one publication day exceeds the limit
+FALLBACK_RANGE = (date(1990, 1, 1), date(2035, 12, 31))
+_YEAR_IN_TERM = re.compile(r'\("(\d{4})"\[pdat\]\)')
+
+
+def partition_term(term: str, start: date, end: date, field_name: str = PARTITION_FIELD) -> str:
+    """The registered query string, unchanged, restricted to a date range (both days inclusive)."""
+    return f"({term}) AND ({start:%Y/%m/%d}:{end:%Y/%m/%d}[{field_name}])"
+
+
+def year_from_term(term: str) -> int | None:
+    """The publication year clause ("YYYY"[pdat]) of a registered query string, if it has one."""
+    m = _YEAR_IN_TERM.search(term)
+    return int(m.group(1)) if m else None
 RETRY_STATUSES = {429} | set(range(500, 600))
 
 
@@ -313,15 +338,18 @@ class EutilsClient:
             querykey=res.get("querykey"),
         )
 
-    def esearch_ids(self, term: str, label: str) -> tuple[list[int], EsearchCount, list[str]]:
-        """Complete PMID list for a query (family L).
+    def esearch_ids(self, term: str, label: str, *, year: int | None = None) -> tuple[list[int], EsearchCount, list[str]]:
+        """Complete PMID list for a query (families L and LV).
 
-        Up to history_threshold identifiers: esearch pages with retmax and retstart. Above it: the
-        count request carries usehistory=y and the identifiers are read from the history server
-        with efetch rettype=uilist in pages of esearch_page_size. Returns (sorted unique PMIDs,
-        the count result, list of notes such as count mismatches)."""
+        Up to history_threshold identifiers: esearch pages with retmax and retstart. Above it the
+        service delivers no more than the first 10,000 identifiers of a result set (also from the
+        history server), so the list is read in publication date ranges of its year, each range
+        with a count of at most LIST_SERVICE_LIMIT identifiers (halved until it is), with the
+        registered query string unchanged inside every range request. Returns (sorted unique
+        PMIDs, the count result of the unchanged query, list of notes such as count mismatches).
+        The caller accepts the list only when the number of identifiers equals the count."""
         notes: list[str] = []
-        head = self.esearch_count(term, f"{label}__count", usehistory=True)
+        head = self.esearch_count(term, f"{label}__count")
         if not head.ok:
             raise TransportError(f"{label}: count request failed ({head.error})")
         count = head.count or 0
@@ -339,25 +367,79 @@ class EutilsClient:
                 ids.extend(page)
                 retstart += len(page)
         else:
-            if not head.webenv or not head.querykey:
-                raise TransportError(f"{label}: history server keys missing for a list of {count} identifiers")
-            retstart = 0
-            while retstart < count:
-                params = {"query_key": head.querykey, "WebEnv": head.webenv, "rettype": "uilist", "retmode": "text",
-                          "retstart": retstart, "retmax": self.esearch_page_size}
-                r = self.request("efetch", params, f"{label}__uilist{retstart}")
-                page = [int(line) for line in r.body.split() if line.strip().isdigit()]
-                if not page:
-                    notes.append(f"empty uilist page at retstart={retstart}")
-                    break
-                ids.extend(page)
-                retstart += len(page)
+            year = year if year is not None else year_from_term(term)
+            if year is None:
+                raise TransportError(f"{label}: {count} identifiers exceed the service limit of {LIST_SERVICE_LIMIT} "
+                                     f"per request set and the query names no publication year to read it in date ranges")
+            ids, part_notes = self._ids_in_date_ranges(term, label, int(year), count)
+            notes.extend(part_notes)
         unique = sorted(set(ids))
         if len(unique) != count:
             notes.append(f"count {count} differs from {len(unique)} unique identifiers retrieved (live database movement)")
         if len(unique) != len(ids):
             notes.append(f"{len(ids) - len(unique)} duplicate identifiers across pages removed")
         return unique, head, notes
+
+    def _ids_in_date_ranges(self, term: str, label: str, year: int, count: int) -> tuple[list[int], list[str]]:
+        """Read a list above the service limit in publication date ranges of its year.
+
+        The year is halved into date ranges until every range holds at most LIST_SERVICE_LIMIT
+        identifiers; each range is one esearch request whose term is the unchanged query string
+        with the range appended (partition_term). A single publication day above the limit (dates
+        without month or day are indexed on the first day) is halved further by create date.
+        Every request is recorded like any other (raw response, log). Returns the identifiers in
+        reading order and notes: the number of ranges, the largest range, and every range whose
+        identifiers do not match its count, and the sum of the range counts if it differs from the
+        count of the unchanged query (the caller then reads the list again)."""
+        notes: list[str] = []
+        ids: list[int] = []
+        leaves: list[tuple[str, int, int]] = []    # (range label, count, identifiers retrieved)
+        pending: list[tuple[date, date, tuple[date, date] | None]] = [(date(year, 1, 1), date(year, 12, 31), None)]
+        while pending:
+            start, end, fallback = pending.pop(0)
+            if fallback is None:
+                t = partition_term(term, start, end)
+                tag = f"{PARTITION_FIELD}{start:%Y%m%d}_{end:%Y%m%d}"
+            else:
+                fs, fe = fallback
+                t = partition_term(partition_term(term, start, end), fs, fe, FALLBACK_FIELD)
+                tag = f"{PARTITION_FIELD}{start:%Y%m%d}_{end:%Y%m%d}__{FALLBACK_FIELD}{fs:%Y%m%d}_{fe:%Y%m%d}"
+            params = {"term": t, "retmode": "json", "retmax": self.esearch_page_size, "retstart": 0}
+            r = self.request("esearch", params, f"{label}__{tag}")
+            data = json.loads(r.body)["esearchresult"]
+            try:
+                c = int(data["count"])
+            except (KeyError, TypeError, ValueError):
+                raise TransportError(f"{label}: no count in the response for the range {tag}")
+            if c > LIST_SERVICE_LIMIT:
+                if fallback is None:
+                    if start < end:
+                        mid = start + (end - start) // 2
+                        pending.insert(0, (mid + timedelta(days=1), end, None))
+                        pending.insert(0, (start, mid, None))
+                        continue
+                    pending.insert(0, (start, end, FALLBACK_RANGE))
+                    continue
+                fs, fe = fallback
+                if fs < fe:
+                    mid = fs + (fe - fs) // 2
+                    pending.insert(0, (start, end, (mid + timedelta(days=1), fe)))
+                    pending.insert(0, (start, end, (fs, mid)))
+                    continue
+                raise TransportError(f"{label}: {c} identifiers on the publication day {start:%Y/%m/%d} and the create day "
+                                     f"{fs:%Y/%m/%d} exceed the service limit of {LIST_SERVICE_LIMIT}; the list cannot be read completely")
+            page = [int(x) for x in data.get("idlist", [])]
+            if len(page) != c:
+                notes.append(f"range {tag}: count {c} but {len(page)} identifiers in the response")
+            ids.extend(page)
+            leaves.append((tag, c, len(page)))
+        total = sum(c for _, c, _ in leaves)
+        largest = max((c for _, c, _ in leaves), default=0)
+        notes.append(f"{count} identifiers exceed the service limit of {LIST_SERVICE_LIMIT} per request set: read in "
+                     f"{len(leaves)} date ranges of {year} (largest range {largest} identifiers; sum of range counts {total})")
+        if total != count:
+            notes.append(f"sum of range counts {total} differs from the count {count} of the unchanged query")
+        return ids, notes
 
     # ---- efetch ---------------------------------------------------------------------------
     def efetch_xml(self, pmids: Iterable[int], label: str) -> list[EfetchBatch]:

@@ -431,7 +431,7 @@ def _read_list(client: EutilsClient, ls) -> tuple[list[int], EsearchCount, list[
     notes: list[str] = []
     for reading in range(1, LIST_READINGS + 1):
         label = f"{ls.list_family}__{ls.spec.query_id}" + ("" if reading == 1 else f"__reading{reading}")
-        pmids, head, reading_notes = client.esearch_ids(ls.spec.term, label)
+        pmids, head, reading_notes = client.esearch_ids(ls.spec.term, label, year=int(ls.spec.year))
         if head.count == len(pmids):
             return pmids, head, notes + reading_notes
         note = f"reading {reading}: count {head.count}, {len(pmids)} identifiers retrieved ({'; '.join(reading_notes)})"

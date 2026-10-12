@@ -10,4 +10,4 @@ panel, validation cells split by AI status, syntax check); it is tagged v1.1.0 a
 before the freeze run. The registered catalogue of v1.0 is unchanged in 1.1.0.
 """
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
