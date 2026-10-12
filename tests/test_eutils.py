@@ -2,8 +2,9 @@ import json
 from pathlib import Path
 
 import pytest
+from datetime import date
 
-from airct_benchmark.eutils import EutilsClient, TokenBucket, TransportError
+from airct_benchmark.eutils import EutilsClient, TokenBucket, TransportError, LIST_SERVICE_LIMIT, year_from_term
 from conftest import FakeSession, deterministic_count, esearch_json, FakeResponse
 
 TERM = '"Diabetes Mellitus"[Mesh] AND "Humans"[Mesh] AND ("2015"[pdat])'
@@ -129,18 +130,89 @@ def test_esearch_ids_small_list_pages_with_retmax_retstart(tmp_path, fake_clock)
     assert [int(c[2]["retstart"]) for c in pages] == [0, 100, 200]
 
 
-def test_esearch_ids_large_list_uses_history_server(tmp_path, fake_clock):
-    term = "LARGE"
-    session = FakeSession(count_overrides={term: 25000})
+def _range_calls(session):
+    """esearch calls of date range terms: (term, count asked with retmax, retstart)."""
+    return [c for c in session.calls if c[1].endswith("esearch.fcgi") and ") AND (" in c[2].get("term", "")]
+
+
+def test_esearch_ids_large_list_is_read_in_publication_date_ranges(tmp_path, fake_clock):
+    """Version 1.1.1: PubMed delivers at most the first 10,000 identifiers of a result set, also from
+    the history server. A larger list is read in date ranges of its year, each below the limit, with
+    the registered string unchanged inside every range request, and the range counts add up."""
+    term = '"Artificial Intelligence"[Mesh] AND "Humans"[Mesh] AND ("2024"[pdat])'
+    session = FakeSession(count_overrides={term: 25000}, list_limit=9999)
     client = make_client(tmp_path, session, fake_clock, esearch_page_size=10000, history_threshold=10000)
     ids, head, notes = client.esearch_ids(term, "L")
-    assert len(ids) == 25000 and ids[0] == 1 and ids[-1] == 25000
-    uilist_calls = [c for c in session.calls if c[1].endswith("efetch.fcgi") and c[2].get("rettype") == "uilist"]
-    assert [int(c[2]["retstart"]) for c in uilist_calls] == [0, 10000, 20000]
-    assert all(c[2]["WebEnv"].startswith("WEBENV_") and c[2]["query_key"] == "1" for c in uilist_calls)
-    assert head.webenv is not None
-    plain_pages = [c for c in session.calls if c[1].endswith("esearch.fcgi") and int(c[2].get("retmax", 0)) > 0]
-    assert plain_pages == []
+    assert ids == list(range(1, 25001)) and head.count == 25000
+    assert year_from_term(term) == 2024
+    assert not any(c[1].endswith("efetch.fcgi") for c in session.calls), "no history server, no uilist"
+    ranges = _range_calls(session)
+    assert ranges, "the list was read in date ranges"
+    for _, _, params in ranges:
+        assert params["term"].startswith("(" + term + ") AND (") and params["term"].endswith("[pdat])")
+        assert int(params["retmax"]) == 10000 and int(params["retstart"]) == 0
+    leaf_counts = [session._count(c[2]["term"]) for c in ranges]
+    assert all(c <= LIST_SERVICE_LIMIT for c in leaf_counts if c <= LIST_SERVICE_LIMIT)
+    assert sum(c for c in leaf_counts if c <= LIST_SERVICE_LIMIT) == 25000
+    assert any("read in" in n and "date ranges of 2024" in n for n in notes)
+    assert not any("differs" in n for n in notes)
+    # the first range is the whole year (above the limit, halved), the leaves are in date order
+    first = ranges[0][2]["term"]
+    assert first.endswith("(2024/01/01:2024/12/31[pdat])")
+    raw = list((tmp_path / "raw").glob("L__pdat*__a1__*.json"))
+    assert len(raw) == len(ranges), "every range request is saved like any other request"
+
+
+def test_esearch_ids_takes_the_year_from_the_caller_or_the_term(tmp_path, fake_clock):
+    session = FakeSession(count_overrides={"LARGE": 12000}, list_limit=9999)
+    client = make_client(tmp_path, session, fake_clock, esearch_page_size=10000, history_threshold=10000)
+    with pytest.raises(TransportError):
+        client.esearch_ids("LARGE", "L")        # no year anywhere: the list cannot be partitioned
+    ids, head, notes = client.esearch_ids("LARGE", "L2", year=2024)
+    assert ids == list(range(1, 12001))
+
+
+def test_esearch_ids_one_publication_day_above_the_limit_is_split_by_create_date(tmp_path, fake_clock):
+    """Dates without month or day are indexed on the first day of the year or month; such a day can
+    hold more than 10,000 identifiers and is split further by create date."""
+    term = '"Stroke"[Mesh] AND ("2024"[pdat])'
+    session = FakeSession(count_overrides={term: 15000}, list_limit=9999,
+                          pdat_of=lambda pmid, year: date(year, 1, 1) if pmid <= 12000 else date(year, 6, 15))
+    client = make_client(tmp_path, session, fake_clock, esearch_page_size=10000, history_threshold=10000)
+    ids, head, notes = client.esearch_ids(term, "L")
+    assert ids == list(range(1, 15001))
+    crdt_ranges = [c for c in _range_calls(session) if "[crdt])" in c[2]["term"]]
+    assert crdt_ranges and all("(2024/01/01:2024/01/01[pdat])" in c[2]["term"] for c in crdt_ranges)
+    assert not any("differs" in n for n in notes)
+
+
+def test_esearch_ids_reports_a_range_whose_identifiers_do_not_add_up(tmp_path, fake_clock):
+    """A range whose identifiers do not match its count, or range counts that do not add up to the
+    count of the unchanged query, are reported; the caller reads the list again and never samples."""
+    term = '"Stroke"[Mesh] AND ("2024"[pdat])'
+    session = FakeSession(count_overrides={term: 25000}, list_limit=9999)
+
+    def hook(endpoint, params, n):
+        if endpoint == "esearch.fcgi" and params.get("term", "").endswith("(2024/01/01:2024/04/01[pdat])"):
+            ids = session._all_ids(params["term"])[:-3]      # three identifiers short
+            return FakeResponse(200, esearch_json(len(ids) + 3, params["term"], idlist=ids))
+        return None
+
+    session.hook = hook
+    client = make_client(tmp_path, session, fake_clock, esearch_page_size=10000, history_threshold=10000)
+    ids, head, notes = client.esearch_ids(term, "L")
+    assert len(ids) == 24997 and head.count == 25000
+    assert any("identifiers in the response" in n for n in notes)
+    assert any(n.startswith("count 25000 differs from 24997") for n in notes)
+
+
+def test_esearch_ids_stops_when_one_day_cannot_be_read_completely(tmp_path, fake_clock):
+    term = '"Stroke"[Mesh] AND ("2024"[pdat])'
+    session = FakeSession(count_overrides={term: 12000}, list_limit=9999,
+                          pdat_of=lambda pmid, year: date(year, 1, 1), crdt_of=lambda pmid: date(2024, 1, 1))
+    client = make_client(tmp_path, session, fake_clock, esearch_page_size=10000, history_threshold=10000)
+    with pytest.raises(TransportError, match="cannot be read completely"):
+        client.esearch_ids(term, "L")
 
 
 def test_efetch_batches_of_200_and_method_by_url_length(tmp_path, fake_clock):

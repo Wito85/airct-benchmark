@@ -8,6 +8,7 @@ import json
 import re
 import socket
 import sys
+from datetime import date, timedelta
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
@@ -122,12 +123,45 @@ def pubmed_set_xml(articles: list[str]) -> str:
     return '<?xml version="1.0" ?><!DOCTYPE PubmedArticleSet PUBLIC "-//NLM//DTD PubMedArticle, 1st January 2024//EN" "https://dtd.nlm.nih.gov/ncbi/pubmed/out/pubmed_240101.dtd">\n<PubmedArticleSet>' + "".join(articles) + "</PubmedArticleSet>"
 
 
+_RANGE_SUFFIX = re.compile(r"^\((?P<base>.*)\) AND \((?P<start>\d{4}/\d{2}/\d{2}):(?P<end>\d{4}/\d{2}/\d{2})\[(?P<field>pdat|crdt)\]\)$", re.S)
+
+
+def split_range_term(term: str):
+    """A term of the form '(base) AND (YYYY/MM/DD:YYYY/MM/DD[pdat|crdt])', possibly nested:
+    returns (base term, {field: (start, end)}). A plain term returns (term, {})."""
+    ranges = {}
+    while True:
+        m = _RANGE_SUFFIX.match(term)
+        if not m:
+            return term, ranges
+        s = date(*[int(x) for x in m.group("start").split("/")])
+        e = date(*[int(x) for x in m.group("end").split("/")])
+        ranges[m.group("field")] = (s, e)
+        term = m.group("base")
+
+
+def default_pdat(pmid: int, year: int) -> date:
+    """Synthetic publication day: the identifiers of a year are spread over its days."""
+    first = date(year, 1, 1)
+    ndays = (date(year, 12, 31) - first).days + 1
+    return first + timedelta(days=pmid % ndays)
+
+
+def default_crdt(pmid: int) -> date:
+    """Synthetic create day, spread over about 27 years."""
+    return date(1990, 1, 1) + timedelta(days=pmid % 10000)
+
+
 class FakeSession:
     """Answers esearch and efetch like PubMed would, deterministically and offline.
 
     * count queries: count = deterministic_count(term), or an override per term
     * list queries: PMIDs 1..count, or the explicit PMID list of ids_overrides for that term
       (pages honour retstart and retmax)
+    * date range terms '(base) AND (start:end[pdat])' (and a nested '[crdt]' range): the
+      identifiers of the base term whose synthetic publication day (pdat_of) or create day
+      (crdt_of) lies in the range; the service limit of PubMed (at most 10,000 identifiers of
+      a result set) is imitated by list_limit: a page never goes beyond that index
     * efetch uilist: PMIDs from the 'history' of the last usehistory query
     * efetch xml: one synthetic PubmedArticle per requested PMID (missing_pmids are omitted)
     * scripted statuses: a queue of HTTP status codes returned before the normal answer
@@ -140,8 +174,12 @@ class FakeSession:
     def __init__(self, count_overrides: dict[str, int] | None = None, status_script: list[int] | None = None,
                  missing_pmids: set[int] | None = None, xml_by_pmid: dict[int, str] | None = None,
                  raise_script: list[Exception] | None = None, ids_overrides: dict[str, list[int]] | None = None,
-                 translate=None, warnings_by_term: dict[str, dict] | None = None, hook=None):
+                 translate=None, warnings_by_term: dict[str, dict] | None = None, hook=None,
+                 pdat_of=None, crdt_of=None, list_limit: int = 10000):
         self.hook = hook
+        self.pdat_of = pdat_of or default_pdat
+        self.crdt_of = crdt_of or default_crdt
+        self.list_limit = int(list_limit)
         self.count_overrides = count_overrides or {}
         self.ids_overrides = {k: list(v) for k, v in (ids_overrides or {}).items()}
         self.status_script = list(status_script or [])
@@ -153,15 +191,35 @@ class FakeSession:
         self.calls: list[tuple[str, str, dict]] = []
         self.history: dict[str, str] = {}
 
-    def _count(self, term: str) -> int:
+    def _base_count(self, term: str) -> int:
         if term in self.ids_overrides:
             return len(self.ids_overrides[term])
         return self.count_overrides.get(term, deterministic_count(term))
 
+    def _all_ids(self, term: str) -> list[int]:
+        """Every identifier of a term, date range terms included (the base identifiers filtered
+        by the synthetic publication and create days)."""
+        base, ranges = split_range_term(term)
+        ids = self.ids_overrides[base] if base in self.ids_overrides else list(range(1, self._base_count(base) + 1))
+        if "pdat" in ranges:
+            s, e = ranges["pdat"]
+            ids = [i for i in ids if s <= self.pdat_of(i, s.year) <= e]
+        if "crdt" in ranges:
+            s, e = ranges["crdt"]
+            ids = [i for i in ids if s <= self.crdt_of(i) <= e]
+        return ids
+
+    def _count(self, term: str) -> int:
+        base, ranges = split_range_term(term)
+        if not ranges:
+            return self._base_count(term)
+        return len(self._all_ids(term))
+
     def _ids(self, term: str, retstart: int, retmax: int) -> list[int]:
-        if term in self.ids_overrides:
-            return self.ids_overrides[term][retstart : retstart + retmax]
-        return list(range(retstart + 1, min(self._count(term), retstart + retmax) + 1))
+        base, ranges = split_range_term(term)
+        if not ranges and term not in self.ids_overrides:
+            return list(range(retstart + 1, min(self._count(term), retstart + retmax, self.list_limit) + 1))
+        return self._all_ids(term)[retstart : min(retstart + retmax, self.list_limit)]
 
     def _answer(self, method: str, url: str, params: dict) -> FakeResponse:
         self.calls.append((method, url, dict(params)))
